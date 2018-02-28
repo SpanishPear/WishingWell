@@ -35,8 +35,10 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
-
+__pycache__
 # Passwords #
 #####################
 passwords
 passwords/passwords.txt
+salt.csv
+users.csv
