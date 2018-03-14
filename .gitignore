@@ -42,3 +42,4 @@ passwords
 passwords/passwords.txt
 salt.csv
 users.csv
+userdata

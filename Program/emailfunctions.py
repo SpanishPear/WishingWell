@@ -119,7 +119,6 @@ def send_email(email_user, email_password, email_destination, subject, body, *ar
         email_password = content[0]
 
 
-
     else:
         body = "{} --> {} ".format(email_user, email_destination)
         msg.attach(MIMEText(body,'plain'))
