@@ -1,0 +1,345 @@
+#:kivy 1.0.9
+#: import sm kivy.uix.screenmanager
+#THESE ARE THE COLOUR SCHEME VARIABLES
+#:set rgba_darkblue (0.141, 0.18431, 0.2549, 1)
+#:set rgba_lightgrey (0.647, 0.647, 0.647, 1)
+#:set rgba_lightblue (0.7608, 0.93725, 0.9137, 1)
+#:set rgba_greenblue (0.3255, 0.764706, 0.71765,1)
+#:set rgba_white (1,1,1,1)
+
+
+
+#screenmanager
+ScreenManager:
+	transition: sm.NoTransition() #uses no transition for screen manager
+	SignUpScreen:
+	LoginScreen:
+	TermsAndConditions:
+
+#----------CUSTOM DEFAULT BEHAVIOURS FOR WIDGETS-------
+
+<Button>:
+    background_normal: ""
+
+<SignUpScreen>:
+	name: "SignUp"
+	FloatLayout:
+		id: RightPanel
+		#Draw before widgets
+		canvas.before:
+			Color:
+				rgba:  (rgba_darkblue)#Sets the background colour of the right panel.
+			Rectangle:
+				# self here refers to the widget i.e BoxLayout
+				pos: self.pos
+				size: self.size
+		#Draw after widgetes
+		canvas.after:
+			Color:
+				rgba: rgba_greenblue
+			Rectangle: #Draws the green line under sign in or sign out
+				pos: root.width/2*1.4, (root.height/2 * 1.53)
+				size: root.width/10,1
+			#The FULL NAME line
+			Color:
+				rgba: rgba_white
+			Rectangle:
+				pos:(root.width/4) * 2.29, root.height/2* 1.22
+				size: root.width/3,1
+			#The EMAIL line
+			Color:
+				rgba: rgba_white
+			Rectangle:
+				pos:(root.width/4) * 2.29, root.height/2*0.97
+				size: root.width/3,1
+			#The PASSWORD line
+			Color:
+				rgba: rgba_white
+			Rectangle:
+				pos:(root.width/4) * 2.29, root.height/2* 0.72
+				size: root.width/3,1
+			#CHECKBOX BORDER
+
+
+
+
+	#-------LEFT SIDE BANNER  IMAGE ---------
+		Image:
+			id: banner
+			source: "../assets/HomeImage.png"
+			size_hint_x: None #set size hint y and sizehint x to None or it will take up the entire screen
+			size_hint_y: None
+			height: root.height #want the height the height of the window, and half the width of the window.
+			width: (root.width/2)
+			allow_stretch: True #Allow strech or 1:1 ratio will remain forever
+			keep_ratio: False #Keep ratio = false, or 1:1 ratio wil remain forever
+	#------- SIGN IN BUTTON ---------
+		Button:
+			font_name: "../assets/Noteworthy.ttf" #sets font to "Noteworthy", which is located at "../assets/Noteworth.ttf"
+			text: "Sign In" #sets text to "Sign In"
+			size_hint_x:0.1 #.1 * root widget size
+			size_hint_y: 0.1#.1 * root widget size
+			font_size: self.size[1]/2.5
+			color: rgba_lightgrey
+			pos: ((root.width/4) * 2.2),root.height/2 * 1.5  #use of static values and percentages to ensure that the positioning is dymanic.
+			background_color: rgba_darkblue #sets the background_colour to the dark blue colour variable
+			on_press: root.switchScreen()
+
+	#------- OR LABEL  ---------
+		Label:
+			id: Or
+			font_name: "../assets/Noteworthy.ttf"
+			text: "or" #sets text to "Or"
+			size_hint: (0.1,0.1) #size == 0.1 * root_widget
+			font_size: self.size[1]/2.5
+			color: (rgba_lightgrey)
+			pos: ((root.width/4) * 2.5),root.height/2 * 1.5  #use of static values and percentages to ensure that the positioning is dymanic.
+
+	#------- SIGN UP BUTTON ---------
+		Button:
+			font_name: "../assets/Noteworthy.ttf" #sets font to "Noteworthy", which is located at "../assets/Noteworth.ttf"
+			text: "Sign Up" #sets text to "Sign In"
+			size_hint: (0.1,0.1) #size == 0.1  * root widget
+			font_size: self.size[1]/2.5 #makes font_size dynamic
+			color: rgba_white #sets text colour to white
+			pos: ((root.width/4) * 2.8),root.height/2 * 1.5  #use of static values and percentages to ensure that the positioning is dymanic.
+			background_color: rgba_darkblue #sets the background_colour to the dark blue colour variable
+
+	#------FULL NAME HEADING AND INPUT  ----------
+		Label:
+			font_name: "../assets/Cambria.ttf" #sets font to "Cambria"
+			text: "FULL NAME" #sets text to "FULL NAME"
+			size_hint: (0.2,0.2) #Sets size to 0.2 * root_widget
+			color: rgba_white
+			pos:((root.width/4) * 2.09),root.height/2 * 1.18
+			font_size: self.size[1]/5.5 #makes font_size dynamic
+		TextInput:
+			id: FullName
+			hint_text: "Insert your full name"
+			pos: ((root.width/4) * 2.27),root.height/2 * 1.16  #use of static values and percentages to ensure that the positioning is dymanic.
+			size_hint: (None,None)
+			height: root.height/12
+			width: root.width/3
+			background_normal: ''
+		    background_color: (0,0,0,0)
+			foreground_color: (1,1,1,1)
+			multiline: False
+			foreground_color: rgba_lightgrey
+
+			#font_size = self.size[1]/2.7 #FIX THIS
+		#--------- EMAIL HEADING AND INPUT ------------
+		Label:
+			font_name: "../assets/Cambria.ttf" #sets font to "Cambria"
+			text: "EMAIL           " #sets text to "FULL NAME"
+			size_hint: (0.2,0.2) #Sets size to 0.2 * root_widget
+			color: rgba_white
+			pos:((root.width/4) * 2.1),root.height/2 * 0.93
+			font_size: self.size[1]/5.5 #makes font_size dynamic
+		TextInput:
+			id: Email
+			hint_text: "Insert your Email"
+			pos: ((root.width/4) * 2.27),root.height/2 * 0.91  #use of static values and percentages to ensure that the positioning is dymanic.
+			size_hint: (None,None)
+			height: root.height/12
+			width: root.width/3
+			background_normal: ''
+		    background_color: (0,0,0,0)
+			foreground_color: (1,1,1,1)
+			multiline: False
+			foreground_color: rgba_lightgrey
+		#-------------PASSWORD HEADING AND INPUT ----------
+		Label:
+			font_name: "../assets/Cambria.ttf" #sets font to "Cambria"
+			text: "PASSWORD" #sets text to "FULL NAME"
+			size_hint: (0.2,0.2) #Sets size to 0.2 * root_widget
+			color: rgba_white
+			pos:((root.width/4) * 2.09),root.height/2 * 0.68
+			font_size: self.size[1]/5.5 #makes font_size dynamic
+
+		TextInput:
+			id: Password
+			hint_text: "Insert your password"
+			pos: ((root.width/4) * 2.27),root.height/2 * 0.66  #use of static values and percentages to ensure that the positioning is dymanic.
+			size_hint: (None,None)
+			height: root.height/12
+			width: root.width/3
+			background_normal: ''
+		    background_color: (0,0,0,0)
+			foreground_color: (1,1,1,1)
+			multiline: False
+			password: True
+			foreground_color: rgba_lightgrey
+		#----------------TERMS AND CONDITIONS  ---------------
+		Widget:
+			CheckBox:
+				pos:   #use of static values and percentages to ensure that the positioning is dymanic.
+				active: True
+				size: 30,30
+				pos: ((root.width/4) * 2.27),root.height/2 * 0.61
+				#Puts a blue background behind the checkbox
+				canvas.before:
+		            Color:
+		                rgba: rgba_lightblue
+		            Rectangle:
+		                pos: self.pos
+		                size: self.size
+		Label:
+			text: "I agree to the"
+			pos: ((root.width/4) * 0.55),root.height/4 * -0.7
+			font_size: root.width/70 #makes font_size dynamic
+		Button:
+			text: "Terms and Conditions"
+			size_hint_x:0.075 #.1 * root widget size
+			size_hint_y: 0.075#.1 * root widget size
+    		size_hint_y: None
+    		text_size: self.width, None
+    		height: self.texture_size[1]
+
+
+			color: rgba_white
+			pos: ((root.width/4) * 2.75),root.height/2 * 0.60 #use of static values and percentages to ensure that the positioning is dymanic.
+			background_color: rgba_greenblue #sets the background_colour to the dark blue colour variable
+			halign: 'center'
+			on_press: app.root.current = "T&C's"
+		Button:
+			font_name: "../assets/Noteworthy.ttf" #sets font to "Noteworthy", which is located at "../assets/Noteworth.ttf"
+			size_hint_x:0.1 #.1 * root widget size
+			size_hint_y: 0.1#.1 * root widget size
+			font_size: self.size[1]/2.5
+			color: rgba_white
+			pos: ((root.width/4) * 2.27),root.height/2 *0.35  #use of static values and percentages to ensure that the positioning is dymanic.
+			background_color: rgba_greenblue #sets the background_colour to the green blue colour variable
+			text: "SIGN UP "
+			on_press: root.call_sign_up(FullName.text, Password.text,Email.text)
+<LoginScreen>:
+    name: "Login"
+    FloatLayout:
+        id: RightPanel
+        #Draw before widgets
+        canvas.before:
+            Color:
+                rgba:  (rgba_darkblue)#Sets the background colour of the right panel.
+            Rectangle:
+                # self here refers to the widget i.e BoxLayout
+                pos: self.pos
+                size: self.size
+        #Draw after widgetes
+        canvas.after:
+            Color:
+                rgba: rgba_greenblue
+            Rectangle: #Draws the green line under sign in or sign out
+                pos: root.width/2*1.1, root.height/2 * 1.53
+                size: root.width/10,1
+			#The FULL NAME line
+			Color:
+				rgba: rgba_white
+			Rectangle:
+				pos:(root.width/4) * 2.29, root.height/2* 1.22
+				size: root.width/3,1
+			#The EMAIL line
+			Color:
+				rgba: rgba_white
+			Rectangle:
+				pos:(root.width/4) * 2.29, root.height/2* 0.97
+				size: root.width/3,1
+			#The PASSWORD line
+
+
+        Image:
+			id: banner
+			source: "../assets/HomeImage.png"
+            size_hint_x: None #set size hint y and sizehint x to None or it will take up the entire screen
+            size_hint_y: None
+            height: root.height #want the height the height of the window, and half the width of the window.
+            width: (root.width/2)
+            allow_stretch: True #Allow strech or 1:1 ratio will remain forever
+			keep_ratio: False #Keep ratio = false, or 1:1 ratio wil remain forever
+        Button:
+            font_name: "../assets/Noteworthy.ttf" #sets font to "Noteworthy", which is located at "../assets/Noteworth.ttf"
+            text: "Sign In" #sets text to "Sign In"
+            size_hint_x:0.1 #.1 * root widget size
+            size_hint_y: 0.1#.1 * root widget size
+            font_size: self.size[1]/2.5
+            color: rgba_white
+            pos: ((root.width/4) * 2.2),root.height/2 * 1.5  #use of static values and percentages to ensure that the positioning is dymanic.
+            background_color: rgba_darkblue #sets the background_colour to the dark blue colour variable
+        Label:
+            id: Or
+            font_name: "../assets/Noteworthy.ttf"
+            text: "or"
+            size_hint_x:0.1 #.1 * root widget size
+            size_hint_y: 0.1#.1 * root widget size
+            font_size: self.size[1]/2.5
+            color: (rgba_lightgrey)
+            pos: ((root.width/4) * 2.5),root.height/2 * 1.5  #use of static values and percentages to ensure that the positioning is dymanic.
+        Button:
+            font_name: "../assets/Noteworthy.ttf" #sets font to "Noteworthy", which is located at "../assets/Noteworth.ttf"
+            text: "Sign Up" #sets text to "Sign In"
+            size_hint_x:0.1 #.1 * root widget size
+            size_hint_y: 0.1#.1 * root widget size
+            font_size: self.size[1]/2.5
+            color: rgba_lightgrey
+            pos: ((root.width/4) * 2.8),root.height/2 * 1.5  #use of static values and percentages to ensure that the positioning is dymanic.
+            background_color: rgba_darkblue #sets the background_colour to the dark blue colour variable
+			on_press: root.switchScreen()
+	#------FULL NAME HEADING AND INPUT  ----------
+		Label:
+			font_name: "../assets/Cambria.ttf" #sets font to "Cambria"
+			text: "EMAIL" #sets text to "FULL NAME"
+			size_hint: (0.2,0.2) #Sets size to 0.2 * root_widget
+			color: rgba_white
+			pos:((root.width/4) * 2),root.height/2 * 1.18
+			font_size: self.size[1]/5.5 #makes font_size dynamic
+		TextInput:
+			id: Email
+			hint_text: "Insert your email"
+			pos: ((root.width/4) * 2.27),root.height/2 * 1.16  #use of static values and percentages to ensure that the positioning is dymanic.
+			size_hint: (None,None)
+			height: root.height/12
+			width: root.width/3
+			background_normal: ''
+		    background_color: (0,0,0,0)
+			foreground_color: (1,1,1,1)
+			multiline: False
+			foreground_color: rgba_lightgrey
+
+			#font_size = self.size[1]/2.7 #FIX THIS
+		#--------- EMAIL HEADING AND INPUT ------------
+		Label:
+			font_name: "../assets/Cambria.ttf" #sets font to "Cambria"
+			text: "PASSWORD" #sets text to "FULL NAME"
+			size_hint: (0.2,0.2) #Sets size to 0.2 * root_widget
+			color: rgba_white
+			pos:((root.width/4) * 2.1),root.height/2 * 0.93
+			font_size: self.size[1]/5.5 #makes font_size dynamic
+		TextInput:
+			id: Password
+			hint_text: "***********"
+			pos: ((root.width/4) * 2.27),root.height/2 * 0.91  #use of static values and percentages to ensure that the positioning is dymanic.
+			size_hint: (None,None)
+			height: root.height/12
+			width: root.width/3
+			background_normal: ''
+		    background_color: (0,0,0,0)
+			foreground_color: rgba_lightgrey
+			password: True
+		Button:
+			font_name: "../assets/Noteworthy.ttf" #sets font to "Noteworthy", which is located at "../assets/Noteworth.ttf"
+            size_hint_x:0.1 #.1 * root widget size
+            size_hint_y: 0.1#.1 * root widget size
+            font_size: self.size[1]/2.5
+            color: rgba_white
+            pos: ((root.width/4) * 2.27),root.height/2 *0.73  #use of static values and percentages to ensure that the positioning is dymanic.
+            background_color: rgba_greenblue #sets the background_colour to the green blue colour variable
+			text: "SIGN IN "
+			on_press: root.call_login(Email.text,Password.text)
+
+
+<TermsAndConditions>:
+	name: "T&C's"
+	FloatLayout:
+		Label:
+			text: "iNsErT TerMs anD cOnDitIons"
+			pos: root.width/2*0.01, root.height/2*0.6
+		Image:
+			source: "../assets/Meme.jpg"
