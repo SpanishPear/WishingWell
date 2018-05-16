@@ -67,7 +67,7 @@ rgba_white = (1,1,1,1)
 colours = {"rgba_darkblue":(0.141, 0.18431, 0.2549, 1), "rgba_lightgrey":(0.647, 0.647, 0.647, 1), "rgba_lightblue":(0.7608, 0.93725, 0.9137, 1), 'rgba_greenblue':(0.3255, 0.764706, 0.71765,1)}
 #DEFINING OTHER  VARIABLES
 active = "SignUp"
-
+ErrorMessage = ""
 
 #DEFINING POPUPS (unable to do it in kv file, screens and popups cannot go together)
 Builder.load_string('''
@@ -77,43 +77,79 @@ Builder.load_string('''
 	title_size: 20
 	title_align: 'center'
 	size_hint: .6,.6
-
+	separator_color: (1,1,1,1)
+	background_normal: ''
+	background: "../assets/PopupBackground.jpg"
 	FloatLayout:
 		Label:
 			id: ErrorMessage
-			text: 'helo'
+			text: root.ErrorMessage
 			color: (1,0,0,1)
+			pos: root.width/2*0.7, root.height/2
+			font_size: self.size[1]/10
+			halign: 'center'
+		Button:
+			id: ButtonValue
+			text: root.ButtonValue
+			background_color: (0.141, 0.18431, 0.2549, 1)
+			pos: root.width/2*1.3, root.height/2
+			width: root.width/12
+			height: root.width/14
+			size_hint: 0.4,0.1
+			on_press: root.dismiss()
+
+
 
 ''')
 
 #--------------_CUSTOM WIDGETS_-------------------
 class Functions(Screen):
 	def call_reload_shared_wishlists(): #DONE
-		reload_shared_wishlists()
-	def call_sign_up(fullname, password, emailAddr):
+		reload_shared_wishlists()#calls the reload_shared_wishlists fucntion defined in API.py
+	def call_sign_up(self, fullname, password, emailAddr):
 		pattern = re.compile(r'[a-zA-Z0-9]+(\.[a-zA-Z]*){0,2}@[a-zA-Z]+(\.[a-zA-Z]*)*')#regex conditions for an email adress
-		match = pattern.match(emailAddr)
+		match = pattern.match(emailAddr) #Checks if emailAddr matches the pattern for an email adress. if False returns None
+		#---------NO FULL NAME ERROR POPUP --------------
 		if fullname == "":
-			ErrorPopup().ids.ErrorMessage.text = "Please Enter FUll Name"
-			LoginScreen().openPopup()
-			print(ErrorPopup().ids.ErrorMessage.text)
-		elif password == "":
-			#//TODO ERROR MESSAGE POPUP
-			pass
-		elif emailAddr == "":
-			#//TODO ERROR MESSAGE POPUP
-			pass
-		elif match == None:
-			#//TODO ERROR MESSAGE POPUP
-			pass
+			newValue = "Please Enter Full Name!"
+			ErrorPopup.ErrorMessage += newValue #adds new error message to existing one
+		#---------NO EMAIL ADRESS ERROR POPUP --------------
+		if emailAddr == "":
+			newValue = "\nPlease Enter an Email Adress!"
+			ErrorPopup.ErrorMessage += newValue #adds new error message to existing one
+		#---------INVALID EMAIL ERROR POPUP --------------
+		if match == None:
+			newValue = "\nPlease Enter a Valid Email Adresss!"
+			ErrorPopup.ErrorMessage += newValue #adds new error message to existing one
+		#---------NO PASSWORD ERROR POPUP --------------
+		if password == "":
+			newValue = "\nPlease Enter Password!"
+			ErrorPopup.ErrorMessage += newValue #adds new error message to existing one
 		else:
-			sign_up(fullname, password, emailAddr)
+			#-------------ALREADY SIGNED UP ERROR POPUP-----------
+			if sign_up(fullname, password, emailAddr) == False:
+				newValue = "\n Someone has already signed up with this email adresss!"
+				ErrorPopup.ErrorMessage += newValue
+			#------------------SUCCESS ERROR POPUP----------------
+			else:
+				newValue = "Congratulations!\nYou have Successfully Signed Up!"
+				ErrorPopup.ButtonValue = "Continue"
+				ErrorPopup.ErrorMessage = newValue
+				self.parent.current = "Login"
+
+
+		LoginScreen().openPopup()#opens error popup
+		ErrorPopup.ButtonValue = "Retry"
+
+		ErrorPopup.ErrorMessage = "" #resets the error message back to nothing, or error messages will stack
+
 	def call_login(email_input, password_input):
-		login_to_app(email_input, password_input)
+		login_to_app(email_input, password_input) #calls the login_to_app function defined in API.py.
 
 
 class ErrorPopup(Popup):
-	pass
+	ErrorMessage = ""
+	ButtonValue = "Retry"
 
 class LoginScreen(Screen):
 
@@ -132,7 +168,6 @@ class LoginScreen(Screen):
 		Functions.call_login(email_input, password_input)
 
 class SignUpScreen(Screen):
-	functionObject = ObjectProperty(None)
 	def switchScreen(self):
 		global active
 
@@ -143,9 +178,10 @@ class SignUpScreen(Screen):
 			self.parent.current = "SignUp"
 			active = "Signup"
 	def call_sign_up(self,fullname, password, emailAddr):
-		Functions.call_sign_up(fullname, password, emailAddr)
+		Functions.call_sign_up(self,fullname, password, emailAddr)
 
-
+class MainMenu(Screen):
+	pass
 
 class TermsAndConditions(Screen):
 	pass

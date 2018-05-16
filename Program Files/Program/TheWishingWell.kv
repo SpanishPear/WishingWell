@@ -14,6 +14,7 @@ ScreenManager:
 	transition: sm.NoTransition() #uses no transition for screen manager
 	SignUpScreen:
 	LoginScreen:
+	MainMenu:
 	TermsAndConditions:
 
 #----------CUSTOM DEFAULT BEHAVIOURS FOR WIDGETS-------
@@ -211,6 +212,7 @@ ScreenManager:
 			background_color: rgba_greenblue #sets the background_colour to the green blue colour variable
 			text: "SIGN UP "
 			on_press: root.call_sign_up(FullName.text, Password.text,Email.text)
+
 <LoginScreen>:
     name: "Login"
     FloatLayout:
@@ -334,6 +336,10 @@ ScreenManager:
 			text: "SIGN IN "
 			on_press: root.call_login(Email.text,Password.text)
 
+<MainMenu>:
+	name: "Menu"
+	FloatLayout:
+		id: MainMenuLayout
 
 <TermsAndConditions>:
 	name: "T&C's"
