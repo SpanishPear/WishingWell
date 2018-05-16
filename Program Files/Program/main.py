@@ -80,7 +80,9 @@ Builder.load_string('''
 
 	FloatLayout:
 		Label:
-			text: 'YEET'
+			id: ErrorMessage
+			text: 'helo'
+			color: (1,0,0,1)
 
 ''')
 
@@ -92,8 +94,9 @@ class Functions(Screen):
 		pattern = re.compile(r'[a-zA-Z0-9]+(\.[a-zA-Z]*){0,2}@[a-zA-Z]+(\.[a-zA-Z]*)*')#regex conditions for an email adress
 		match = pattern.match(emailAddr)
 		if fullname == "":
-			#//TODO ERROR MESSAGE POPUP
-			pass
+			ErrorPopup().ids.ErrorMessage.text = "Please Enter FUll Name"
+			LoginScreen().openPopup()
+			print(ErrorPopup().ids.ErrorMessage.text)
 		elif password == "":
 			#//TODO ERROR MESSAGE POPUP
 			pass
