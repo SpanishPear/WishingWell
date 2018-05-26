@@ -12,8 +12,10 @@
 #screenmanager
 ScreenManager:
 	transition: sm.NoTransition() #uses no transition for screen manager
+
 	SignUpScreen:
 	LoginScreen:
+	LoginValidationScreen:
 	MainMenu:
 	TermsAndConditions:
 
@@ -336,10 +338,105 @@ ScreenManager:
 			text: "SIGN IN "
 			on_press: root.call_login(Email.text,Password.text)
 
+<LoginValidationScreen>:
+	name: "LoginValidation"
+
+	FloatLayout:
+		id: ErrorLayout
+		canvas.before:
+			Color:
+				rgba:  (rgba_lightblue)#Sets the background colour of the right panel.
+			Rectangle:
+					# self here refers to the widget i.e BoxLayout
+				pos: self.pos #Sets background rectangle to position of the window
+				size: self.size #Sets background rectangle to size of the window
+		Button:
+			id: CrossExitButton #Sets ID to CrossExitButton
+			text: "X" #X button
+			pos: root.width/2*0.015, root.height/2 * 1.85 #positions the Cross butons
+			background_color: (1,0,0,1) #Red background color
+			size_hint: 0.05,0.05 #sets size of Button
+			on_press: root.ExitLoginScreen()
+		Label:
+			id: MessageButton #Sets ID to MessageButton
+			text: root.Message #Sets text to root.Message, the message variable within  the class
+			color: (1,0,0,1) #sets the text color to red
+			pos: root.width/2*-0.05, root.height/2 *0.6 #sets position of label
+			font_size: root.height/17 #sets font size of label
+			halign: 'center' #sets horizontal line of text to center
+		TextInput:
+			id: Password #sets id of text input to Password
+			hint_text: "Insert your email Password" #sets hint text to "Insert your email password"
+			pos: ((root.width/2) * 0.6),root.height/2 * 0.85 #use of static values and percentages to ensure that the positioning is dymanic.
+			size_hint: (None,None) #Sets size_hint to (None, None)
+			height: root.height/12 #sets height to height of root window/12
+			width: root.width/3 #sets width to width of root window/12
+			#background_normal: ''
+			background_color: (0,0,0,0) #Sets background color to black
+			multiline: False #Allows for only one line
+			foreground_color: (0.647, 0.647, 0.647, 1) #sets text color to grey
+			password: True #sets password to true, text input in form of asterix's
+		Button:
+			id: ButtonValue #sets id to ButtonValue
+			text: "Validate Password" #sets text to "Validate Password"
+			background_color: rgba_darkblue #sets bacgkround color to darkblue
+			pos: root.width/2*0.6, root.height/2 * 0.6 #sets position relative to  width and height of the window
+			width: root.width/12 #sets width relative to width of window
+			height: root.width/14 #sets height relative to height of window
+			size_hint: 0.4,0.1 #sets height relative to root of window
+			on_press: root.validate(Password.text)
+		ProgressBar:
+			pos: root.width/2*0.6, root.height/2*0.7
+			size_hint: 0.4,0.2
+			value: 0
+
 <MainMenu>:
 	name: "Menu"
 	FloatLayout:
-		id: MainMenuLayout
+		canvas.before:
+			Color:
+				rgba:  (rgba_lightblue)#Sets the background colour of the right panel.
+			Rectangle:
+					# self here refers to the widget i.e BoxLayout
+				pos: self.pos
+				size: self.size
+		Label:
+			id: Welcome
+			height: (root.height/5)
+			width: root.width/3
+			pos: (root.width/200),(root.height/2.5)
+			text: root.welcome
+			font_size: root.width/18
+			markup: True
+		Label:
+			id: Name
+			size:(root.width/5.5),(root.width/3.5)
+			pos:(root.width/200),(root.height/3.5)
+			text: ''
+			color: 0,0,0,1
+			font_size: root.width/18
+
+		Button:
+			id: Help
+			size_hint: 0.5,0.15
+			pos: (root.width/2)*0.5,(root.height/2)*0.5
+			text: "[color=#ffffff]SHARED WITH\n ME[/color]"
+			markup: True
+			size: self.texture_size
+			font_size: root.height/15
+			padding_y: 10
+			background_color: rgba_greenblue
+			halign: 'center'
+		Button:
+			id: Help
+			size_hint: 0.5,0.15
+			pos: (root.width/2)*0.5,(root.height/2)*1
+			text: "[color=#ffffff]MY WISHLISTS[/color]"
+			markup: True
+			size: self.texture_size
+			font_size: root.height/15
+			padding_y: 10
+			background_color: rgba_greenblue
 
 <TermsAndConditions>:
 	name: "T&C's"

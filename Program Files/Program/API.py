@@ -11,16 +11,16 @@ attatchment_dir = 'wishlists'
 emailAddr = ''
 appPassword = ''
 emailPassword = ''
-
+fullName = ""
 #TEST VALUES
 emailAddr = '106299@avondaleschool.nsw.edu.au'
 content = []
-with open("passwords/passwords.txt") as f:
-    for line in f:
-        line = line.strip()
-        content.append(line)
-appPassword = content[0] # DELETE THIS WHEN USUING THE ACTUAL PROGRAM
-emailPassword = content[1]
+# with open("passwords/passwords.txt") as f:
+#     for line in f:
+#         line = line.strip()
+#         content.append(line)
+# appPassword = content[0] # DELETE THIS WHEN USUING THE ACTUAL PROGRAM
+# emailPassword = content[1]
 
 def reload_shared_wishlists(): #DONE
     '''
@@ -70,13 +70,14 @@ def reload_wishlists():
             except:
                 pass
 
-def share_wishlist(to_addr, wishlist_filename): #DONE
+def share_wishlist(to_addr, users_email, wishlist_name): #DONE
     '''
     Takes an email to send to, and the name of the wishlist.
     Wishlist filenames are stored as emailaccount-wishlistname.csv
     Uses regex to find email in the filename, sets it as the sent_from, which is then used in the body of the email.
     sends email from wishlists.server@gmail.com to the specified adress with the wishlist attatched.
     '''
+    wishlist_filename = wishlist_name + "-" + users_email
     pattern = re.compile(r'[a-zA-Z0-9]+(\.[a-zA-Z]*){0,2}@[a-zA-Z]+(\.[a-zA-Z]*)*')#uses regex to get the email part of the filename
     m = pattern.search(wishlist_filename)#searches for email in filename and sets it to variable m
 
@@ -129,7 +130,7 @@ def login_to_app(email_input, password_input):
     global emailAddr
     global appPassword
     global emailPassword
-
+    global fullName
     with open("userdata/salt.csv") as f:
         for line in csv.reader(f):
             salt = line[1]
@@ -140,13 +141,8 @@ def login_to_app(email_input, password_input):
                 if row["password"] == hashedinput: #checks if the hashed password is equal to the hashed input
                     appPassword = hashedinput
                     emailAddr = email_input
-                    emailPassword = input(("Welcome, ,{}! , in order to use Wishlists software properly," +
-                                           " we need the password for the email you signed up/logged in with: ").format(row["user"]))
-                    while auth(emailAddr,emailPassword,imap_url) == False:
-                        emailPassword = input(("Welcome, {}, unfortunately that password was incorrect. \n "
-                                                +"Please input the password for the email you singed up/logged in with: ").format(row["user"]))
-
-                    return True
+                    fullName = row["user"]
+                    return appPassword, emailAddr
                 else:
                     print("Incorrect password!!")
                     return False
@@ -159,25 +155,9 @@ def testrun():
     global emailAddr
     global content
     try:
-        #loginToApp('106299@avondaleschool.nsw.edu.au',content[1])
-        #time.sleep(10)
-        #print("\n\n")
-        #share_wishlist('shrey.somaiya@gmail.com' ,(emailAddr +'-Valentines'))
-        #time.sleep(30)
-        #reload_wishlists()
-        #reload_shared()
-    #    signUp('Shrey Somaiya',content[1], '106299@avondaleschool.nsw.edu.au')
-        print("\n")
+        pass
     except ConnectionResetError as e:
         print("connect to the internet!!!!")
 
-    # global username
-    # reload() #user reloads to check for new csv's
-    # print('reload done')
-    # share_wishlist('', '', '106299@avondaleschool.nsw.edu.au' ,(username +'-Valentines'))
-    # print('share_wishlist done')
-    # time.sleep(30)
-    # reload()
-    # print('reload done')
 
 #testrun()

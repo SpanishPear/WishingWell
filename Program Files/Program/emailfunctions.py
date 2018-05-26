@@ -14,10 +14,10 @@ attachment_dir = 'wishlists'
 # sets up the auth
 connection = ''
 content = []
-with open("passwords/passwords.txt") as f:
-    for line in f:
-        line = line.strip()
-        content.append(line)
+# with open("passwords/passwords.txt") as f:
+#     for line in f:
+#         line = line.strip()
+#         content.append(line)
 
 
 def auth(user,password,imap_url):
@@ -29,6 +29,7 @@ def auth(user,password,imap_url):
         print("Correct login credentials!")
         return con
     except imaplib.IMAP4.error as e: #if there is an authentication error do this:
+        print(user, password)
         print("invalid login credentials!!")
         return False
 
@@ -141,3 +142,4 @@ def send_email(email_user, email_password, email_destination, subject, body, *ar
     server.sendmail(email_user,email_destination,text)#sends email
     server.quit()#quits server
     print("email sent")
+#auth('shrey.somaiya@gmail.com','***REMOVED***','imap.gmail.com')

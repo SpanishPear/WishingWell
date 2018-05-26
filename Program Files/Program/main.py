@@ -28,16 +28,18 @@ from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.graphics import Color, Rectangle #imports the colour and rectangle libraries so i can make coloured boxes.
 
+from kivy.uix.textinput import TextInput
 
-from kivy.properties import ObjectProperty
-
+from kivy.uix.progressbar import ProgressBar
 from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
 from API import *
+import API
 import re
+from kivy.clock import Clock
+FN =""
+
 Window.size = (1440,900)
-
-
 #Light Blue: #C2EFE9
 #	rgb(194, 239, 233)
 #	(0.7608, 0.93725, 0.9137)
@@ -68,7 +70,7 @@ colours = {"rgba_darkblue":(0.141, 0.18431, 0.2549, 1), "rgba_lightgrey":(0.647,
 #DEFINING OTHER  VARIABLES
 active = "SignUp"
 ErrorMessage = ""
-
+emailPassword = ""
 #DEFINING POPUPS (unable to do it in kv file, screens and popups cannot go together)
 Builder.load_string('''
 <ErrorPopup>:
@@ -81,12 +83,13 @@ Builder.load_string('''
 	background_normal: ''
 	background: "../assets/PopupBackground.jpg"
 	FloatLayout:
+		id: ErrorLayout
 		Label:
 			id: ErrorMessage
 			text: root.ErrorMessage
 			color: (1,0,0,1)
 			pos: root.width/2*0.7, root.height/2
-			font_size: self.size[1]/10
+			font_size:
 			halign: 'center'
 		Button:
 			id: ButtonValue
@@ -109,6 +112,11 @@ class Functions(Screen):
 	def call_sign_up(self, fullname, password, emailAddr):
 		pattern = re.compile(r'[a-zA-Z0-9]+(\.[a-zA-Z]*){0,2}@[a-zA-Z]+(\.[a-zA-Z]*)*')#regex conditions for an email adress
 		match = pattern.match(emailAddr) #Checks if emailAddr matches the pattern for an email adress. if False returns None
+
+
+		#//TODO ADD LENGTH VALIDATIONS AS WELL
+
+
 		#---------NO FULL NAME ERROR POPUP --------------
 		if fullname == "":
 			newValue = "Please Enter Full Name!"
@@ -138,21 +146,67 @@ class Functions(Screen):
 				self.parent.current = "Login"
 
 
-		LoginScreen().openPopup()#opens error popup
+		LoginScreen().openErrorPopup()#opens error popup
 		ErrorPopup.ButtonValue = "Retry"
 
 		ErrorPopup.ErrorMessage = "" #resets the error message back to nothing, or error messages will stack
 
-	def call_login(email_input, password_input):
-		login_to_app(email_input, password_input) #calls the login_to_app function defined in API.py.
+	def call_login(self,email_input, password_input):
+		login = False
+		#--------NO EMAIL ADRESS ERROR POPUP-----------
+		if email_input == "":
+			newValue = "\nPlease Enter an Email Address!"
+			ErrorPopup.ErrorMessage += newValue #adds new error message to existing one
+		#---------NO PASSWORD ERROR POPUP --------------
+		if password_input == "":
+			newValue = "\nPlease Enter Password!"
+			ErrorPopup.ErrorMessage += newValue #adds new error message to existing one
+		else:
+
+			if login_to_app(email_input, password_input) == False: #calls the login_to_app function defined in API.py.
+				newValue = "\n Incorrect Username/Password!"
+				ErrorPopup.ErrorMessage += newValue
+			else:
+				login = True
+				newValue = ""
+				LoginValidationScreen.Message = newValue
+		if login == False:
+			LoginScreen().openErrorPopup()#opens error popup
+		else:
+			self.parent.current = "LoginValidation"
+
+		ErrorPopup.ButtonValue = "Retry"
+
+		ErrorPopup.ErrorMessage = "" #resets the error message back to nothing, or error messages will stack
 
 
 class ErrorPopup(Popup):
 	ErrorMessage = ""
 	ButtonValue = "Retry"
 
-class LoginScreen(Screen):
+class LoginValidationScreen(Screen):
+	Message = "Welcome! In order to use Wishlists software properly,\n we need to use your email password to send emails\n containing wishlists to your friends,\n and to search for wishlists that have been sent to you \nby your friends."
+	def validate(self,password_input):
+		global FN
+		global emailPassword
+		if auth(API.emailAddr,password_input,imap_url)== False:
+			self.ids.MessageButton.text = "Incorrect password!\n Please input the password\n for the email that you signed up with"
+		else:
+			self.parent.current = "Menu"
+			emailPassword = password_input
+			FN = API.fullName
+			# print("\n,email password: " ,emailPassword,
+			# 	  "\n email address:", API.emailAddr,
+			# 	  "\n full name:", API.fullName,
+			# 	  "\n app password:", API.appPassword)
+	def ExitLoginScreen(self):
+		self.parent.current = "Login"
 
+
+class LoginScreen(Screen):
+	def closePopup(self, *args):
+		global login
+		login.dismiss() #WORKS
 	def switchScreen(self):
 		global active
 
@@ -162,10 +216,10 @@ class LoginScreen(Screen):
 		else:
 			self.parent.current = "SignUp"
 			active = "SignUp"
-	def openPopup(self, *args):
+	def openErrorPopup(self, *args):
 		 ErrorPopup().open()
 	def call_login(self,email_input, password_input):
-		Functions.call_login(email_input, password_input)
+		Functions.call_login(self,email_input, password_input)
 
 class SignUpScreen(Screen):
 	def switchScreen(self):
@@ -174,6 +228,7 @@ class SignUpScreen(Screen):
 		if active == "SignUp":
 			self.parent.current = "Login"
 			active = "Login"
+
 		else:
 			self.parent.current = "SignUp"
 			active = "Signup"
@@ -181,7 +236,8 @@ class SignUpScreen(Screen):
 		Functions.call_sign_up(self,fullname, password, emailAddr)
 
 class MainMenu(Screen):
-	pass
+	welcome = "Welcome!"
+
 
 class TermsAndConditions(Screen):
 	pass
@@ -189,7 +245,7 @@ class ScreenManager(ScreenManager):
 	pass
 
 root_widget = Builder.load_file("TheWishingWell.kv")
-
+sm = ScreenManager()
 class WishingWell(App):
 	def build(self):
 		return root_widget
