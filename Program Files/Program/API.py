@@ -13,7 +13,7 @@ appPassword = ''
 emailPassword = ''
 fullName = ""
 #TEST VALUES
-emailAddr = '106299@avondaleschool.nsw.edu.au'
+emailAddr = ''
 content = []
 # with open("passwords/passwords.txt") as f:
 #     for line in f:

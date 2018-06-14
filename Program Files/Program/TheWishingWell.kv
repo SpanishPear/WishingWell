@@ -12,11 +12,13 @@
 #screenmanager
 ScreenManager:
 	transition: sm.NoTransition() #uses no transition for screen manager
-
+	MainMenu:
 	SignUpScreen:
 	LoginScreen:
 	LoginValidationScreen:
-	MainMenu:
+	MyWishlists:
+	deleteScreen:
+	NewWishlistScreen:
 	TermsAndConditions:
 
 #----------CUSTOM DEFAULT BEHAVIOURS FOR WIDGETS-------
@@ -331,8 +333,8 @@ ScreenManager:
 			font_name: "../assets/Noteworthy.ttf" #sets font to "Noteworthy", which is located at "../assets/Noteworth.ttf"
             size_hint_x:0.1 #.1 * root widget size
             size_hint_y: 0.1#.1 * root widget size
-            font_size: self.size[1]/2.5
-            color: rgba_white
+            font_size: self.size[1]/2.5 #sets font_size dynamic to size of button
+            color: rgba_white #sets button text color to white
             pos: ((root.width/4) * 2.27),root.height/2 *0.73  #use of static values and percentages to ensure that the positioning is dymanic.
             background_color: rgba_greenblue #sets the background_colour to the green blue colour variable
 			text: "SIGN IN "
@@ -388,9 +390,9 @@ ScreenManager:
 		ProgressBar:
 			pos: root.width/2*0.6, root.height/2*0.7
 			size_hint: 0.4,0.2
-			value: 0
+			value: 0#COMMENTED
 
-<MainMenu>:
+<MainMenu>: #COMMENTED
 	name: "Menu"
 	FloatLayout:
 		canvas.before:
@@ -401,42 +403,265 @@ ScreenManager:
 				pos: self.pos
 				size: self.size
 		Label:
-			id: Welcome
-			height: (root.height/5)
-			width: root.width/3
-			pos: (root.width/200),(root.height/2.5)
-			text: root.welcome
-			font_size: root.width/18
+			id: Welcome #sets ID to Welcome
+			height: (root.height/5)#sets height dynamic to window size
+			width: root.width/3#sets width dynamic to window size
+			pos: (root.width/200),(root.height/2.5) #sets position dynamic to window size
+			text: root.welcome #sets text to root.welcome, welcome variable in the MainMenu Class
+			font_size: root.width/18#sets font dynamic to window size
 			markup: True
 		Label:
-			id: Name
-			size:(root.width/5.5),(root.width/3.5)
-			pos:(root.width/200),(root.height/3.5)
+			id: Name #sets id to name
+			size:(root.width/5.5),(root.width/3.5)#sets size dynamic to window size
+			pos:(root.width/200),(root.height/3.5)#sets position dynamic to window size
+			text: root.firstname #sets text to firstname, which will change when screen is entered
+			color: 1,1,1,1  #sets text color to white
+			font_size: root.width/18 #sets font size dynamic to window size
+		Button:
+			id: MyWishlists #sets id to MyWishlsits
+			size_hint: 0.5,0.15 #sets size of buton dynamic to width of parent widget
+			pos: (root.width/2)*0.5,(root.height/2)*1 #sets position dynamic to window size
+			text: "[color=#ffffff]MY WISHLISTS[/color]" #Sets text to MY WISHLISTS, in white
+			markup: True #allows for markup of text
+			size: self.texture_size #sets size to texture size, allowing for text wraapping
+			font_size: root.height/15 #sets font size dynamic to window size
+			padding_y: 10 #sets vertical padding to 10
+			background_color: rgba_greenblue #sets background color to greenblue color
+			on_press: app.root.current = 'MyWishlists' #takes user to MyWishlists screen when button clicked
+		Button:
+			id: SharedWishlists #sets ID to shared wishlsits
+			size_hint: 0.5,0.15 #sets size of buton dynamic to size of root widget
+			pos: (root.width/2)*0.5,(root.height/2)*0.5 #sets position dynamic to size of window
+			text: "[color=#ffffff]SHARED WITH\n ME[/color]" #sets text to SHARED WITH ME in white
+			markup: True #allows for markup of text
+			size: self.texture_size #sets size to texture size, allowing for text wraapping
+			font_size: root.height/15 #sets font_size dynamic to window size
+			padding_y: 10 #sets verticla padding to 10
+			background_color: rgba_greenblue #sets background color of button to greenblue
+			halign: 'center' #sets horizontal align of text to center
+			on_press: app.root.current = 'SharedWishlists' #takes user to shared wishlsits when button is clicked
+
+<MyWishlists>:
+	name: "MyWishlists"
+    FloatLayout:
+        id: RightPanel
+        #Draw before widgets
+        canvas.before:
+            Color:
+                rgba:  rgba_lightblue#Sets the background colour of the right panel to lightblue
+            Rectangle:
+                # self here refers to the widget i.e FloatLayou
+                pos: self.pos
+                size: self.size
+			#Left panel
+        	Color:
+				rgba: (rgba_darkblue) #sets background color of left panel to Darkblue
+			Rectangle:
+				pos: 0, 0
+				size: root.width/6, root.height
+			#green panel in left panel
+			Color:
+				rgba: rgba_greenblue#Sets the background colour of the right panel to lightblue
+			RoundedRectangle:
+				size: (root.width/7,root.height/1.5)
+				pos: (root.width* 0.015, root.height * 0.1)
+		#-------DEFINES THE LABEL - NAME OF THE WISHLSIT ------------
+		Label:
+			id: WishlistNameLabel
 			text: ''
-			color: 0,0,0,1
-			font_size: root.width/18
+			size_hint: None,None
+			font_size: root.height/10
+			size: root.width/4, root.height/3
+			pos: root.width/8 * 3.5, root.height/2*1.4
+			color: (0,0,0,1)
+		#-------DEFINES THE SAVE BUTTON-----
+		ImageButton:
+			id: SaveButton#sets id to SaveButton
+			source: "../assets/saveicon.png" #sets source of image
+			size_hint: 0.15, 0.15
+			pos: root.width/8 * 1.5, root.height/4 * 3.15 #sets position of image
+			on_press: root.pressed_save_button() #calls pressed_save_buton() when pressed
+			on_release: root.released_save_button() #calls released_save_button() when released
+			allow_stretch: True #Allow strech or 1:1 ratio will remain forever
+			keep_ratio: False #Keep ratio = false, or 1:1 ratio wil remain forever
+			opacity: 0
+		#------DEFINES THE SHARE BUTON
+		ImageButton:
+			id: ShareButton #sets id to ShareButton
+			source: "../assets/shareicon.png" #sets source of image
+			size_hint: 0.15, 0.15
+			pos: root.width/8 * 6.5, root.height/4 * 3.2 #sets position of image
+			on_press: root.pressed_share_button() #calls pressed_share_buton() when pressed
+			on_release: root.released_share_button() #calls released_share_button() when released
+			allow_stretch: True #Allow strech or 1:1 ratio will remain forever
+			keep_ratio: False #Keep ratio = false, or 1:1 ratio wil remain forever
+			opacity: 0
+		#-----DEFINES THE HOME BUTTON----
+		ImageButton:
+			id: HomeButton
+			pos: root.width/8 * 0.2, root.height/4 * 0.5
+			source: "../assets/homeicon.png"
+			size_hint: 0.04,0.04
+			allow_stretch: True #Allow strech or 1:1 ratio will remain forever
+			keep_ratio: False #Keep ratio = false, or 1:1 ratio wil remain forever
+			on_press: app.root.current = "Menu"
+
+		#-------DEFINES THE NEW WISHLIST BUTON ------
+		ImageButton:
+			id: NewWishlist #sets id to ShareButton
+			source: "../assets/plusbutton.png" #sets source of image
+			size_hint: 0.035, 0.035
+			pos: root.width/8 * 0.60, root.height/4 * 0.5
+			on_press: root.pressed_new_wishlist_button() #calls pressed_share_buton() when pressed
+			on_release: root.released_new_wishlist_button() #calls released_share_button() when released
+			allow_stretch: True #Allow strech or 1:1 ratio will remain forever
+			keep_ratio: False #Keep ratio = false, or 1:1 ratio wil remain forever
+
+		#-------DEFINES THE EDIT BUTON FOR LIST OF WISHLISTS ------
+		ImageButton:
+			id: EditWishlists #sets id to ShareButton
+			source: "../assets/editicon.png" #sets source of image
+			size_hint: 0.02, 0.035
+			pos: root.width/8 , root.height/4 * 0.5
+			on_press: root.pressed_edit_button() #calls pressed_share_buton() when pressed
+			on_release: root.released_edit_button() #calls released_share_button() when released
+			allow_stretch: True #Allow strech or 1:1 ratio will remain forever
+			keep_ratio: False #Keep ratio = false, or 1:1 ratio wil remain forever
+
+
+		#-----DEFINES THE SCROLL VIEW FOR THE WISHLIST ITEMS -------
+		ScrollView:
+			id: ScrollView
+			size: (root.width*2)/2.65, root.height/2*1.3
+			pos: root.width/5, root.height/4*.2
+			size_hint: None,None
+			bar_width: 10
+			GridLayout:
+				id: ItemsGrid
+				cols: 1
+				padding:10
+				spacing:10
+				size_hint:None,None
+				width:root.width/2.88
+		#-------DEFINES THE SCROLL VIEW FOR THE WISHLIST NAMES------
+		ScrollView:
+			id:ScrollViewNames
+			size: root.width/7, root.height/2
+			pos: root.width/2 *0.0325, root.height/2*0.4
+			size_hint: None,None
+			bar_width: 10
+			do_scroll_x: False
+			GridLayout:
+				id: NamesGrid
+				cols: 1
+				padding:10
+				spacing:10
+				size_hint: None,None
+				width: 500
+
+<deleteScreen>:
+	background: "../assets/PopupBackground.jpg"
+	name: "deleteWishlist"
+	FloatLayout:
+		id: ErrorLayout
+		canvas.before:
+			Color:
+				rgba: (rgba_lightblue)#Sets the background colour of the right panel.
+			Rectangle:
+					# self here refers to the widget i.e BoxLayout
+				pos: self.pos #Sets background rectangle to position of the window
+				size: self.size #Sets background rectangle to size of the window
 
 		Button:
-			id: Help
-			size_hint: 0.5,0.15
-			pos: (root.width/2)*0.5,(root.height/2)*0.5
-			text: "[color=#ffffff]SHARED WITH\n ME[/color]"
-			markup: True
-			size: self.texture_size
-			font_size: root.height/15
-			padding_y: 10
-			background_color: rgba_greenblue
-			halign: 'center'
+			id: CrossExitButton #Sets ID to CrossExitButton
+			text: "X" #X button
+			pos: root.width/2*0.015, root.height/2 * 1.85 #positions the Cross butons
+			background_color: (1,0,0,1) #Red background color
+			size_hint: 0.05,0.05 #sets size of Button
+			on_press: app.root.current = "MyWishlists"
+
+		Label:
+			id: MessageLabel #Sets ID to MessageLabel
+			text: root.Message #Sets text
+			color: (1,0,0,1) #sets the text color to red
+			pos: root.width/2 * 0.01, root.height/2*.5 #sets position of label
+			font_size: root.height/10 #sets font size of label
+			halign: 'center' #sets horizontal line of text to center
+
+
 		Button:
-			id: Help
-			size_hint: 0.5,0.15
-			pos: (root.width/2)*0.5,(root.height/2)*1
-			text: "[color=#ffffff]MY WISHLISTS[/color]"
-			markup: True
-			size: self.texture_size
-			font_size: root.height/15
-			padding_y: 10
-			background_color: rgba_greenblue
+			id: ButtonValue #sets id to ButtonValue
+			text: "Yes, I'm sure" #sets text to "Validate Password"
+			background_color: rgba_darkblue #sets bacgkround color to darkblue
+			pos: root.width/2*0.4, root.height/2 * 0.6 #sets position relative to  width and height of the window
+			size_hint: 0.2,0.1 #sets height relative to root of window
+			on_press: root.deleteWishlist()
+
+
+		Button:
+			id: ButtonValue #sets id to ButtonValue
+			text: "No!!" #sets text to "Validate Password"
+			background_color: rgba_darkblue #sets bacgkround color to darkblue
+			pos: root.width/2*1.2, root.height/2 * 0.6 #sets position relative to  width and height of the window
+			size_hint: 0.2,0.1 #sets height relative to root of window
+			on_press: app.root.current = "MyWishlists"
+
+<NewWishlistScreen>:
+	background: "../assets/PopupBackground.jpg"
+	name: "NewWishlist"
+	FloatLayout:
+		id: ErrorLayout
+		canvas.before:
+			Color:
+				rgba: (rgba_lightblue)#Sets the background colour of the right panel.
+			Rectangle:
+					# self here refers to the widget i.e BoxLayout
+				pos: self.pos #Sets background rectangle to position of the window
+				size: self.size #Sets background rectangle to size of the window
+
+		Button:
+			id: CrossExitButton #Sets ID to CrossExitButton
+			text: "X" #X button
+			pos: root.width/2*0.015, root.height/2 * 1.85 #positions the Cross butons
+			background_color: (1,0,0,1) #Red background color
+			size_hint: 0.05,0.05 #sets size of Button
+			on_press: app.root.current = "MyWishlists"
+
+		Label:
+			id: MessageLabel #Sets ID to MessageLabel
+			text: "Please enter a name for your new wishlist!" #Sets text
+			color: (1,0,0,1) #sets the text color to red
+			pos: root.width/2*0, root.height/2 *0.6 #sets position of label
+			font_size: root.height/17 #sets font size of label
+			halign: 'center' #sets horizontal line of text to center
+
+		TextInput:
+			id: WishlistNameInput #sets id of text input to Password
+			hint_text: "Insert name of the wishlist" #sets hint text to "Insert your email password"
+			pos: ((root.width/2) * 0.6),root.height/2 * 0.85 #use of static values and percentages to ensure that the positioning is dymanic.
+			size_hint: (None,None) #Sets size_hint to (None, None)
+			height: root.height/12 #sets height to height of root window/12
+			width: root.width/3 #sets width to width of root window/12
+			#background_normal: ''
+			background_color: (0,0,0,0) #Sets background color to black
+			multiline: False #Allows for only one line
+			hint_text_color: (0.647, 0.647, 0.647, 1) #sets text color to grey
+			foreground_color: (0,0,0,1)
+
+		Button:
+			id: ButtonValue #sets id to ButtonValue
+			text: "Create New Wishlist" #sets text to "Validate Password"
+			background_color: rgba_darkblue #sets bacgkround color to darkblue
+			pos: root.width/2*0.6, root.height/2 * 0.6 #sets position relative to  width and height of the window
+			width: root.width/12 #sets width relative to width of window
+			height: root.width/14 #sets height relative to height of window
+			size_hint: 0.4,0.1 #sets height relative to root of window
+			on_press: root.CreateWishlist(WishlistNameInput.text)
+
+		ProgressBar:
+			pos: root.width/2*0.6, root.height/2*0.7
+			size_hint: 0.4,0.2
+			value: 0#COMMENTED
 
 <TermsAndConditions>:
 	name: "T&C's"
