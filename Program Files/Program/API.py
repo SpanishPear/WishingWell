@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from emailfunctions import *
+from EmailFunctionsDebugging import *
 import imaplib, email, os,csv,smtplib, time, hashlib, uuid
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -19,8 +19,9 @@ content = []
 #     for line in f:
 #         line = line.strip()
 #         content.append(line)
-# appPassword = content[0] # DELETE THIS WHEN USUING THE ACTUAL PROGRAM
-# emailPassword = content[1]
+#     print(content)
+appPassword = "***REMOVED***"
+emailPassword = "***REMOVED***"
 
 def reload_shared_wishlists(): #DONE
     '''
@@ -55,9 +56,12 @@ def reload_wishlists():
     global emailAddr
     global content
     print("reload_wishlists \n\n")
-    connection = auth('wishlists.server@gmail.com',content[0],imap_url) #logs in to remote email client
+    connection = auth('wishlists.server@gmail.com','***REMOVED***23',imap_url) #logs in to remote email client
+    print(connection)
     connection.select("INBOX") #focuses on inbox
+    print(emailAddr)
     msgs = get_emails(search('FROM', emailAddr, connection)) #uses get_emails function to get emails given the criteria
+    print(msgs)
     if msgs is not None:
         for msg in msgs:
             try:
@@ -65,6 +69,7 @@ def reload_wishlists():
                 print("------- NEW ------")
                 print(get_body(raw).decode("utf-8"))#prints body of email
                 print("")
+
                 get_attachments(raw)#gets attatchments of email
 
             except:
@@ -89,10 +94,10 @@ def share_wishlist(to_addr, users_email, wishlist_name): #DONE
 
 def save(users_email, email_password, wishlist_filename): #DONE
     '''
-    saves(sends email containing) wishlist(as csv file) to the server
+    saves(sends email containing) wishlist(as csv file) to the server, which can then later be retrieved by the reload_wishlists() function
     '''
 
-    send_email(users_email, email_password, 'wishlists.server@gmail.com', subject,body,(wishlist_filename+'.csv'))
+    send_email(users_email, email_password, 'wishlists.server@gmail.com', "","",(wishlist_filename+'.csv'))
 
 def sign_up(fullname, password, emailAddr): #DONE
     '''
@@ -151,13 +156,13 @@ def login_to_app(email_input, password_input):
         else:
             print("This user has not signed up")
 
-def testrun():
-    global emailAddr
-    global content
-    try:
-        pass
-    except ConnectionResetError as e:
-        print("connect to the internet!!!!")
-
-
-#testrun()
+# def testrun():
+#     global emailAddr
+#     global content
+#     try:
+#         reload_wishlists()
+#     except ConnectionResetError as e:
+#         print("connect to the internet!!!!")
+#
+#
+# testrun()

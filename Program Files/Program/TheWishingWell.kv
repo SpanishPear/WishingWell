@@ -17,15 +17,18 @@ ScreenManager:
 	LoginScreen:
 	LoginValidationScreen:
 	MyWishlists:
-	deleteScreen:
+	DeleteScreen:
 	NewWishlistScreen:
+	ShareWishlistScreen:
 	TermsAndConditions:
-
-#----------CUSTOM DEFAULT BEHAVIOURS FOR WIDGETS-------
-
+	#---------------------------------------------------------------------------------
+	#															CUSTOM BEHAVIOURS FOR DEFAULT WIDGETS
+	#---------------------------------------------------------------------------------
 <Button>:
     background_normal: ""
-
+#-----------------------------------------------------------------------------------
+#																							SCREENS
+#-----------------------------------------------------------------------------------
 <SignUpScreen>:
 	name: "SignUp"
 	FloatLayout:
@@ -529,7 +532,7 @@ ScreenManager:
 			keep_ratio: False #Keep ratio = false, or 1:1 ratio wil remain forever
 
 
-		#-----DEFINES THE SCROLL VIEW FOR THE WISHLIST ITEMS -------
+		#---DeleteScreenE SCROLL VIEW FOR THE WISHLIST ITEMS -------
 		ScrollView:
 			id: ScrollView
 			size: (root.width*2)/2.65, root.height/2*1.3
@@ -545,21 +548,56 @@ ScreenManager:
 				width:root.width/2.88
 		#-------DEFINES THE SCROLL VIEW FOR THE WISHLIST NAMES------
 		ScrollView:
-			id:ScrollViewNames
-			size: root.width/7, root.height/2
-			pos: root.width/2 *0.0325, root.height/2*0.4
-			size_hint: None,None
-			bar_width: 10
+			id:ScrollViewNames #sets id of scrollview for referencing inpython
+			size: root.width/7, root.height/2 #dynamically sizes scrollView
+			pos: root.width/2 *0.0325, root.height/2*0.4#dynamically positions scroll view relative to window size
+			size_hint: None,None #sets size hint to None, None
+			bar_width: 10 #sets scroll bar width to 10
 			do_scroll_x: False
 			GridLayout:
-				id: NamesGrid
-				cols: 1
-				padding:10
-				spacing:10
-				size_hint: None,None
-				width: 500
+				id: NamesGrid #sets id of GridLayout for referencing in python
+				cols: 1 #sets number of columns to 1
+				padding:10 #sets padding to 10
+				spacing:10 #sets spacing to 10
+				size_hint: None,None #sets size hint to None, None
+				width: 500#sets width to 500
 
-<deleteScreen>:
+		#---------DEFINE THE EDIT MODE TEXT --------
+		Label:
+			id: EditModeText
+			text: "EDIT MODE" #sets text to EDIT MODE
+			opacity: 0 #disables opacity, will be turned to 1 when edit mode is on
+			color: (1,0,0,1) #sets color to red
+			pos: root.width/2 * -.83, root.height/2 * 0.45
+			font_size: root.height/25
+		#---------DEFINE THE RELOAD BUTTON -------
+		ImageButton:
+			id: ReloadButton #sets id to reloadButton
+			source: "../assets/reloadicon.png" #sets source of image
+			size_hint: 0.03, 0.045 #sets size dynamically
+			pos: root.width/8 *0.6 , root.height/2 * 1.43 #sets position dynaically
+			on_press: root.pressed_reload_wishlist_button() #calls pressed_share_buton() when pressed
+			on_release: root.released_reload_wishlist_button() #calls released_share_button() when released
+			allow_stretch: True #Allow strech or 1:1 ratio will remain forever
+			keep_ratio: False #Keep ratio = false, or 1:1 ratio wil remain forever
+
+		#-------------DEFINES THE HEADING LABEL------------------
+		Label:
+			id: MyWishlistsHeading
+			color: (1,1,1,1) #sets color to red
+			pos: root.width/2 * -.83, root.height/2 * 0.8
+			font_size: root.height/25
+			text: "My Wishlists"
+		#-------------DEFINES THE UPDATED INFORMATION LABEL---------
+		Label:
+			id: updatedInfo
+			color: (1,0,0,1) #sets color to red
+			pos: root.width/2 * .13, root.height/2 * 0.57
+			font_size: root.height/25
+			text: "Wishlist Saved!"
+			opacity: 0
+			
+<DeleteScreen>:
 	background: "../assets/PopupBackground.jpg"
 	name: "deleteWishlist"
 	FloatLayout:
@@ -657,6 +695,64 @@ ScreenManager:
 			height: root.width/14 #sets height relative to height of window
 			size_hint: 0.4,0.1 #sets height relative to root of window
 			on_press: root.CreateWishlist(WishlistNameInput.text)
+
+		ProgressBar:
+			pos: root.width/2*0.6, root.height/2*0.7
+			size_hint: 0.4,0.2
+			value: 0#COMMENTED
+
+
+<ShareWishlistScreen>:
+	background: "../assets/PopupBackground.jpg"
+	name: "ShareWishlist"
+	FloatLayout:
+		id: ErrorLayout
+		canvas.before:
+			Color:
+				rgba: (rgba_lightblue)#Sets the background colour of the right panel.
+			Rectangle:
+					# self here refers to the widget i.e BoxLayout
+				pos: self.pos #Sets background rectangle to position of the window
+				size: self.size #Sets background rectangle to size of the window
+
+		Button:
+			id: CrossExitButton #Sets ID to CrossExitButton
+			text: "X" #X button
+			pos: root.width/2*0.015, root.height/2 * 1.85 #positions the Cross butons
+			background_color: (1,0,0,1) #Red background color
+			size_hint: 0.05,0.05 #sets size of Button
+			on_press: app.root.current = "MyWishlists"
+
+		Label:
+			id: MessageLabel #Sets ID to MessageLabel
+			text: "Please enter an email adress to share to!" #Sets text
+			color: (1,0,0,1) #sets the text color to red
+			pos: root.width/2*0, root.height/2 *0.6 #sets position of label
+			font_size: root.height/17 #sets font size of label
+			halign: 'center' #sets horizontal line of text to center
+
+		TextInput:
+			id: EmailDestinationInput #sets id of text input to Password
+			hint_text: "Insert email address" #sets hint text to "Insert your email password"
+			pos: ((root.width/2) * 0.6),root.height/2 * 0.85 #use of static values and percentages to ensure that the positioning is dymanic.
+			size_hint: (None,None) #Sets size_hint to (None, None)
+			height: root.height/12 #sets height to height of root window/12
+			width: root.width/3 #sets width to width of root window/12
+			#background_normal: ''
+			background_color: (0,0,0,0) #Sets background color to black
+			multiline: False #Allows for only one line
+			hint_text_color: (0.647, 0.647, 0.647, 1) #sets text color to grey
+			foreground_color: (0,0,0,1)
+
+		Button:
+			id: ButtonValue #sets id to ButtonValue
+			text: "Share Wishlist" #sets text to "Validate Password"
+			background_color: rgba_darkblue #sets bacgkround color to darkblue
+			pos: root.width/2*0.6, root.height/2 * 0.6 #sets position relative to  width and height of the window
+			width: root.width/12 #sets width relative to width of window
+			height: root.width/14 #sets height relative to height of window
+			size_hint: 0.4,0.1 #sets height relative to root of window
+			on_press: root.share_wishlist(EmailDestinationInput.text)
 
 		ProgressBar:
 			pos: root.width/2*0.6, root.height/2*0.7

@@ -10,80 +10,60 @@ import re
 
 imap_url = 'imap.gmail.com'
 #Where you want your attachments to be saved (ensure this directory exists)
-attachment_dir = 'wishlists'
+attachment_dir = 'Wishlists'
 # sets up the auth
 con = ''
 content = []
-
-
-
-def auth(user,password,imap_url):
+serverEmail = 'wishlists.server@gmail.com'
+serverPassword = "***REMOVED***23"
+def auth(user, password, imap_url):
     try:
         global con
         con = imaplib.IMAP4_SSL(imap_url)
         con.login(user,password)
-        print("Correct login credentials!")
+        print("Login Successful")
+        print(con)
         return con
-    except imaplib.IMAP4.error as e: #if there is an authentication error do this:
-        print(user, password)
-        print("invalid login credentials!!")
+    except imaplib.IMAP4.error as e:
+        print(user,password)
+        print("INVALID login credentials")
         return False
 
-
-def get_emails(result_bytes):
-    '''
-    Returns a list of emails(given the email identifiers) in base 64
-    '''
-    msgs = []
-    for num in result_bytes[0].split():#splits results into individual emails
-        print(con)
-        typ, data = con.fetch(num, '(RFC822)') #fetches the data(in bytes)
-        msgs.append(data)
-    return msgs
-
-
-# extracts the body from the email
 def get_body(msg):
-    if msg.is_multipart():
+    if msg.is_multipart(): #if message has attachment, just get the body
         return get_body(msg.get_payload(0))
     else:
-        return msg.get_payload(None,True)
-
-
+        return msg.get_payload(None,True) #otherwise get body
 
 def get_attachments(msg):
-    '''
-    Saves the attatchments in the wishlists directory.
-    '''
-    attachment_dir = 'wishlists'
-
     for part in msg.walk():
         if part.get_content_maintype()=='multipart':
             continue
         if part.get('Content-Disposition') is None:
             continue
         fileName = part.get_filename()
-        #print(fileName)
-
 
         if bool(fileName):
-            filePath = os.path.join(attachment_dir, fileName)
+            #filePath = os.path.join(attachment_dir, fileName)
+            filePath = "Wishlists/"+fileName
             with open(filePath,'wb') as f:
                 f.write(part.get_payload(decode=True))
 
 
-
-
 def search(key,value,con):
-    '''
-    Searches inbox using keyword and phrase EG: FROM thisemail@gmail.com
-    '''
     result, data  = con.search(None,key,'"{}"'.format(value))
     return data
 
 
-
-
+def get_emails(result_bytes):
+    msgs = []
+    try:
+        for num in result_bytes[0].split():
+            typ, data = con.fetch(num, '(RFC822)')
+            msgs.append(data)
+    except:
+        pass
+    return msgs
 
 
 def send_email(email_user, email_password, email_destination, subject, body, *args):
@@ -118,8 +98,9 @@ def send_email(email_user, email_password, email_destination, subject, body, *ar
         body = "{} --> {} ".format(email_user, email_destination)
         msg.attach(MIMEText(body,'plain'))
     if len(args) >= 1:
-        filename = args[0]
-        attachment = open(('wishlists/'+ filename),'rb') #opens the file in read bytes mode
+        wishlistname = args[0][:-4]
+        filename = wishlistname + "-" +email_user+'.csv'
+        attachment = open(("Wishlists/"+filename),'rb') #opens the file in read bytes mode
         part = MIMEBase('application','octet-stream')#enables attachments
         part.set_payload((attachment).read())   #enables reading of attachments
         encoders.encode_base64(part)#encodes attatchment to b64
@@ -137,4 +118,22 @@ def send_email(email_user, email_password, email_destination, subject, body, *ar
     server.sendmail(email_user,email_destination,text)#sends email
     server.quit()#quits server
     print("email sent")
-#auth('shrey.somaiya@gmail.com','***REMOVED***','imap.gmail.com')
+
+
+# def reload_wishlists():
+#     connection = auth('wishlists.server@gmail.com','***REMOVED***23',imap_url) #logs in to remote email client
+#     connection.select("INBOX") #focuses on inbox
+#     msgs = get_emails(search('FROM', 'shrey.somaiya@gmail.com', connection)) #uses get_emails function to get emails given the criteria
+#     print(msgs)
+#     if msgs is not None:
+#         for msg in msgs:
+#             try:
+#                 raw = email.message_from_bytes(msg[0][1]) # [0][1] corresponds to raw data
+#                 print("------- NEW ------")
+#                 print(get_body(raw).decode("utf-8"))#prints body of email
+#                 print("")
+#                 get_attachments(raw)
+#             except Exception as e:
+#                 print(e)
+
+#reload_wishlists()
