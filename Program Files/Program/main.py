@@ -46,6 +46,8 @@ import time
 import os
 from functools import partial
 import csv    #imports the csv module for data processing of csv files
+import traceback
+import time
 
 Window.size = (1440,900)
 
@@ -94,6 +96,15 @@ currentWishlist = ""
 namesPlaced = False
 editMode = False
 wishlist_to_be_deleted = ""
+#whilst named ViewingTargetsEmail, it refers to the user's wishlist that the root user is viewing, not the root users email adress
+targetUser = ""
+targetEmail = ""
+deleted = []
+validWishlistName = re.compile(
+r'(.)*-(([a-zA-Z0-9]+(\.[a-zA-Z]*){0,2}@[a-zA-Z]+(\.[a-zA-Z]*)*)).csv'
+)
+
+validEmail = re.compile(r'[a-zA-Z0-9]+(\.[a-zA-Z]*){0,2}@[a-zA-Z]+(\.[a-zA-Z]*)*')#regex conditions for an email adress
 
 #-------------------------------------------------------------------------------------------------
 #										CUSTOM WIDGETS
@@ -128,8 +139,9 @@ Builder.load_string('''
 			text: root.ErrorMessage
 			color: (1,0,0,1)
 			pos: root.width/2*0.7, root.height/2
-			font_size: root.height/8
+			font_size: root.height/10
 			halign: 'center'
+
 		Button:
 			id: ButtonValue
 			text: root.ButtonValue
@@ -139,6 +151,7 @@ Builder.load_string('''
 			height: root.width/14
 			size_hint: 0.4,0.1
 			on_press: root.dismiss()
+
 
 
 ''')
@@ -197,15 +210,17 @@ class Functions(Screen):
 		LoginScreen().openErrorPopup()#opens error popup
 		ErrorPopup.ButtonValue = "Retry"
 
-		ErrorPopup.ErrorMessage = "" #resets the error message back to nothing, or error messages will stack
+		ErrorPopup.ErrorMessage = "" #resets the error message back to nothing, or error messages will stack DOCUMENATION
 	def call_login(self,email_input, password_input): #COMMENTED
 		login = False
+		print("Call_login in the Functions class was just called!")
+
 		#--------NO EMAIL ADRESS ERROR POPUP-----------
 		if email_input.strip() == "": #If there is no email adress, asks user to enter an email adress
 			newValue = "\nPlease Enter an Email Address!" #Sets new value to "Please Enter an Email Adress!"
 			ErrorPopup.ErrorMessage += newValue #adds new error message to existing one
 		#---------NO PASSWORD ERROR POPUP --------------
-		if password_input.strip() == "": #If there is no password, asks user to enter a password
+		elif password_input.strip() == "": #If there is no password, asks user to enter a password
 			newValue = "\nPlease Enter Password!" #Sets new value to please enter an email adress
 			ErrorPopup.ErrorMessage += newValue #adds new error message to existing one
 		else:
@@ -214,11 +229,13 @@ class Functions(Screen):
 				ErrorPopup.ErrorMessage += newValue
 			else:
 				login = True #sets login Flag to True
+
 		if login == False: #if there is an erro in the login processes, then open the ErrorPopup
 			LoginScreen().openErrorPopup()#opens error popup
+			ErrorPopup.ErrorMessage = "" #resets error Message
 		else: #otherwise go to the loginvalidation screen
-			#self.parent.current = "LoginValidation" //TODO RE-ENABLE THIS #go to the login validation screen
-			pass
+			self.parent.current = "LoginValidation"
+
 
 	def call_share_wishist(self,to_addr):
 		pattern = re.compile(r'[a-zA-Z0-9]+(\.[a-zA-Z]*){0,2}@[a-zA-Z]+(\.[a-zA-Z]*)*')#regex conditions for an email adress
@@ -236,78 +253,117 @@ class Functions(Screen):
 	def call_save_wishlist(self):
 		save(API.emailAddr,emailPassword,currentWishlist)
 
-class NewWishlistScreen(Screen):
-	def CreateWishlist(self, wishlist_name):
-		if len(wishlist_name) < 10: #restriction on wishlist_name length , has to be less than 10 characters
-			MyWishlists().CreateWishlist(wishlist_name)
-			MyWishlists().PlaceWishlistNames(edit=False)
-			self.parent.current = 'MyWishlists' #changes screen to MyWishlists
-			self.ids.WishlistNameInput.text = "" #resets the text input to "" so it looks empty when they create a new wishlist
-		else:
-			self.ids.MessageLabel.text = "Please make sure your wishlist name is < 10 characters long!"
 
-class LoginValidationScreen(Screen):
-	Message = "Welcome! In order to use Wishlists software properly,\n we need to use your email password to send emails\n containing wishlists to your friends,\n and to search for wishlists that have been sent to you \nby your friends."
-	def validate(self,password_input):
-		global FN
-		global emailPassword
-		if auth(API.emailAddr,password_input,imap_url)== False:
-			self.ids.MessageButton.text = "Incorrect password!\n Please input the password\n for the email that you signed up with"
-		else:
-			#self.parent.current = "Menu" #//TODO RE-ENABLE THIS
-			emailPassword = password_input
-			FN = API.fullName
-			# print("\n,email password: " ,emailPassword,
-			# 	  "\n email address:", API.emailAddr,
-			# 	  "\n full name:", API.fullName,
-			# 	  "\n app password:", API.appPassword)
-	def ExitLoginScreen(self):
-		self.parent.current = "Login"
+class LoginScreen(Screen): #COMMENTED #TESTING DOCUMENTATION
 
-class LoginScreen(Screen):
-	def closePopup(self, *args):
-		global login
-		login.dismiss() #WORKS
-	def switchScreen(self):
+	def switchScreen(self, *args): #COMMENTED #TESTING DOCUMENTATION
+		'''
+		This is essentially a NOT gate, if the active screen is “SignUp”, then change the active screen to “Login”, and change the global active variable to “Login”, to tell the program that “Login” is now the active screen and works the opposite way if “SignUp” is the active screen
+		'''
 		global active
-
 		if active == "SignUp": #If current screen is SignUp, change screen to Login when pressed
-			self.parent.current = "Login"
-			active = "Login"
+			self.parent.current = "Login" #sets current screen to login screen
+			active = "Login" #sets active variable to "Login"
+
 		else:#If current screen is SignUp, change screen to Login when pressed
-			self.parent.current = "SignUp"
-			active = "SignUp"
-	def openErrorPopup(self, *args):
-		 ErrorPopup().open()
+			self.parent.current = "SignUp" #changes screen to sign up screen
+			active = "SignUp" #sets active variable to "SignUp"
+
+	def openErrorPopup(self, *args): #COMMENTED #TESTING DOCUMENTATION
+		'''
+		This function opens the ErrorPopup.
+		'''
+		ErrorPopup().open() #opens the ErrorPopup
+
 	def call_login(self,email_input, password_input):
-		Functions.call_login(self,email_input, password_input)
+		'''
+		This function calls the call_login function defined in the Function class, the class where functions defined in API.py are called
+		'''
+		Functions.call_login(self,email_input, password_input) #COMMENTED #TESTING DOCUMENTATION
 
-class SignUpScreen(Screen):
-	def switchScreen(self):
+class SignUpScreen(Screen): #COMMENTED #TESTING DOCUMENTATION
+
+	def switchScreen(self):#COMMENTED #TESTING
+		'''
+		This is essentially a NOT gate, if the active screen is “SignUp”, then change the active screen to “Login”, and change the global active variable to “Login”, to tell the program that “Login” is now the active screen and works the opposite way if “SignUp” is the active screen
+
+
+		NOTE: Had to re-define the function, was unable to change screen from a function in another screen:
+				ERROR --'NoneType' object has no attribute 'current'
+
+		'''
 		global active
-		if active == "SignUp":#If current screen is SignUp, change screen to Login when pressed
-			self.parent.current = "Login"
-			active = "Login"
+		if active == "SignUp": #If current screen is SignUp, change screen to Login when pressed
+			self.parent.current = "Login" #sets current screen to login screen
+			active = "Login" #sets active variable to "Login"
 
 		else:#If current screen is SignUp, change screen to Login when pressed
-			self.parent.current = "SignUp"
-			active = "Signup"
-	def call_sign_up(self,fullname, password, emailAddr):
-		Functions.call_sign_up(self,fullname, password, emailAddr)
+			self.parent.current = "SignUp" #changes screen to sign up screen
+			active = "SignUp" #sets active variable to "SignUp"
+
+	def call_sign_up(self,fullname, password, emailAddr):#COMMENTED #TESTING
+		Functions.call_sign_up(self,fullname, password, emailAddr) #remove brackets and add self so that you dont instatiate the functions class, and you keep it as a screen.
+
+class LoginValidationScreen(Screen):#COMMENTED #TESTING DOCUMENTATION
+	Message = "Welcome! In order to use Wishlists software properly,\n we need to use your email password to send emails\n containing wishlists to your friends,\n and to search for wishlists that have been sent to you \nby your friends."
+	#Validate Driver:
+	# def on_enter(self):
+	# 	self.validate('mqcrgsyqflmpqrnr')
+
+	def validate(self,password_input, *args): #COMMENTED
+		'''
+		This function attempts to login to the gmail server with the password_input parameter, and the email address with which the user logged in with, stored as API.emailAddr. If the login attempt fails, change the error message to say that the login failed, and to try again. If the login attempt succeeds, change the screen to the Main Menu screen, and set the global emailPassword variable to contain the emailPassword(passed as a parameter , password_input)
+		'''
+		global FN #imports the global FN variable
+		global emailPassword #imports the global emailPassword variable
+		#tries to login to server given emailAddr and password_input
+		if auth(API.emailAddr,password_input,imap_url)== False:
+			#if password is incorrect, tell uesr
+			self.ids.MessageButton.text = "Incorrect password!\n Please input the password\n for the email that you signed up with"
+			#print("Incorrect password!\n Please input the password\n for the email that you signed up with, False") #TESTING DOCUMENTATION
+			return False
+		#otherwise go to Menu, set emailPassword to password input
+		else:
+			self.parent.current = "Menu" #//TODO RE-ENABLE THIS
+			#set emailPassword to password_input
+			emailPassword = password_input
+			#set FN to the API.fullName variable
+			FN = API.fullName
+			#print("True, FN set to",FN,"emailPassword set to", emailPassword) #TESTING DOCUMENTATION
+			return True
 
 class MainMenu(Screen):
 	welcome = "Welcome,"
-	firstname = ''
+	firstname = StringProperty()
 	def on_enter(self):
-		Functions.call_login(self,'shrey.somaiya@gmail.com','***REMOVED***') #//TODO DISABLE THIS
-		LoginValidationScreen.validate(self, '***REMOVED***') #//TODO DISABLE THIS
-		self.firstname = FN.split(" ")[0] +"!"
+		#Functions.call_login(self,'shrey.somaiya@gmail.com','***REMOVED***') #//TODO DISABLE THIS
+		#LoginValidationScreen.validate(self, "bdyijkbcipmcbfyv") #//TODO DISABLE THIS
+		#print(FN) TESTING FN IS ABLE TO BE READ
+		#print(FN.split(" ")[0]) #TESTING THAT WE CAN GET THE FIRST NAME
+		self.firstname = str(FN.split(" ")[0] +"!")
+	#	print("The new first name is", self.firstname) #TESTING THAT THE FIRSTNAME WAS CHANGED
 
 class MyWishlists(Screen):
 
 	def on_enter(self):
+
 		#imports the global editMode
 		global editMode
+		#imports global ViewingTargetsEmail
+		global ViewingTargetsEmail
+		#imports global current Wishlist
+		global currentWishlist
+		currentWishlist = ""
+		#changse the email adress's wishlist that the user is viwing is their own wishlists
+
+
+		ViewingTargetsEmail = API.emailAddr
+
+		self.ids.ItemsGrid.clear_widgets()
+		self.ids.SaveButton.opacity = 0
+		self.ids.ShareButton.opacity = 0
+		self.ids.WishlistNameLabel.opacity = 0
+		self.ids.ItemsButton.opacity = 0
 		#checks if still in edit mode, if it is, draw butons as red with different buton
 		if not editMode:
 			self.PlaceWishlistNames(edit=False) #callPlaceWishlistNames with edit kwarg as false
@@ -324,6 +380,8 @@ class MyWishlists(Screen):
 		global currentWishlist #imports the global current wishlist variable
 		#------------CHECKS IF CURRENT WISHLIST HAS BEEN SAVED BEFORE SWITCHING TO NEW ONE------
 		''' This block of code compares the contents of a wishlist with the contents of the text inputs on the screen. If they are different, the user has unsaved changes'''
+		if currentWishlist == "":
+			return
 		try:
 			items = [] #initialises an empty items list
 			for child in self.ids.ItemsGrid.children: #get every child of the grid, ie every item in the list
@@ -334,7 +392,7 @@ class MyWishlists(Screen):
 			items = self.sortArray(items) #sorts the items list using an insertion sort
 			items.reverse() #reverses the item list, chose not to put this into the sortArray for readability.
 			Expected_items = items #sets expected items to be the items on screen
-
+			print(currentWishlist)
 
 
 			given = OpenWishlistFromName(currentWishlist) #sets given to be the wishlist currentlys aved
@@ -403,9 +461,10 @@ class MyWishlists(Screen):
 		'''Locates, opens and outputs the contents of a wishlist given its name. Places the
 		items on the screen displays the wishlists name and displays the share and save buttons. '''
 		global currentWishlist #imports the global current wishlist variable
-		if self.checkIfSaved(popup = True) == False: #checks if the wishlist has been saved before placing a new wishlist , with the popup kwarg as true, meainng that if the focused wishlist hasnt been saved, a popup will show, informing the user that they have unsaved changes. 
+		if self.checkIfSaved(popup = True) == False: #checks if the wishlist has been saved before placing a new wishlist , with the popup kwarg as true, meainng that if the focused wishlist hasnt been saved, a popup will show, informing the user that they have unsaved changes.
 			return
-
+		elif wishlist_name == "": #if currentwishlist is none, dont return
+			return
 
 		#------------UPDATING SCREEN WITH BUTONS AND NAME----------------
 		'''This block of code places the name of the wishlist as a heading, places the items button for the top of the wishlist, scrolls the wishlist scroll view to the top, and makes the save button and share button visible'''
@@ -414,20 +473,12 @@ class MyWishlists(Screen):
 			self.ids.WishlistNameLabel.text = str("{" + wishlist_name.replace("_"," ")+"}") #replaces _ with " " if there is an _ in the name (for aesthetics)
 		except:
 			self.ids.WishlistNameLabel.text = str("{" + wishlist_name +  "}") #just places the wishlsitname on screen with the { } as decorations
-		#defines the items button with the following parameters:
-		ItemsButton = Button(
-			size_hint = (None, None),
-			size = ((Window.size[0]*2)/2.65,Window.size[1]/22),
-			text = "ITEMS",
-			halign = 'center',
-			pos_hint = {"center_x": 0.58,"center_y": 0.72	 },
-			background_color = (0,0,0,1),
-			background_down = ""
-		)
-		self.ids.RightPanel.add_widget(ItemsButton) #adds the items rectangle at the top
+		self.ids.ItemsButton.opacity = 1 #makes the items header visible
 		self.ids.ScrollView.scroll_y = 1 #makes scroll view scroll to top
 		self.ids.ShareButton.opacity = 1 #makes share button visible
 		self.ids.SaveButton.opacity = 1 #makes save button visible
+		self.ids.WishlistNameLabel.opacity = 1 #makes heading visible
+
 
 		#-------------PLACING WISHLIST ON SCREEN-----------------
 		'''This block of code places the wishlist items in text inputs INSIDE the scroll view on the screen. '''
@@ -437,6 +488,7 @@ class MyWishlists(Screen):
 		layout = self.ids.ItemsGrid #sets layout to the GridLayout
 		layout.bind(minimum_height=layout.setter('height')) #sets grid to minimum height, allows for scrolling
 		wishlist_path = "Wishlists/"+wishlist_name + "-" +API.emailAddr+'.csv'  #sets wishlist path given the wishlist name and email adress
+
 		with open(wishlist_path) as f: #open the file
 			reader = csv.DictReader(f) #opens a reader
 			for row in reader: #for every row in the file
@@ -455,7 +507,8 @@ class MyWishlists(Screen):
 				size = (Window.size[0],Window.size[1]/24),
 				background_color = rgba_darkblue,
 				foreground_color = rgba_white,
-				hint_text_color = rgba_white)
+				hint_text_color = rgba_white,
+				multiline = False)
 			self.ids.ItemsGrid.add_widget(TI) #adds text input to the grid
 
 	def PlaceWishlistNames(self, *args, **kwargs):
@@ -466,11 +519,7 @@ class MyWishlists(Screen):
 		global namesPlaced #imports the namesPlaced variable so we can change it to true once the names are placed
 		list_wishlists = glob.glob("Wishlists/*.csv") #gets list of wishlists
 		names = [] #sets names to empty list
-		validWishlistName = re.compile(
 
-		r'(.)*-(([a-zA-Z0-9]+(\.[a-zA-Z]*){0,2}@[a-zA-Z]+(\.[a-zA-Z]*)*)).csv'
-
-		)
 
 		filenamePattern = re.compile(r'\/.*-') #regex pattern to find name of wishlist in the filename
 
@@ -482,37 +531,35 @@ class MyWishlists(Screen):
 		layout.bind(minimum_height=layout.setter('height'))#sets minium height to the layouts height, allows for scrolling
 		#adds each name of the of each of the wishlists  in the list of wishlists.
 		for item in list_wishlists:
-			if validWishlistName.search(item) is not None:
-				wishlist_name = filenamePattern.findall(item)[0][1:-1]
-				try:
-					wishlist_name_displayed = wishlist_name.replace("_"," ") #if the name contains an underscore, replace it with a space
-				except:
-					wishlist_name_displayed = wishlist_name #otherwise set the name displayed to the name found
-				#create the name button
-				btn = Button(
-					text = str(wishlist_name_displayed),
-					size_hint = (None, None),
-					size = (Window.size[0]/8,Window.size[1]/24),
-					halign = 'center',
-					color = (0,0,0,1))
-				#ie if kwargs["edit"]==False
-				if not kwargs["edit"]:
-					btn.bind(on_press = partial(self.PlaceWishlistItems, wishlist_name))
-					btn.background_color = rgba_lightblue
-				#if edit is a kwargument then:
-				else:
-					#set buton press to delete the wishlist, rather than display the wishlist
-					btn.bind(on_press= partial(self.deleteWishlist, wishlist_name))
-					#changes the background_color to red, for visual, that you are deleting if you click.
-					btn.background_color = (1,0,0,1)
-
-				self.ids.NamesGrid.add_widget(btn)
+			print(item)
+			emailInFile = validEmail.search(item).group(0)[:-4] #gets the email adress in the filename
+			if validWishlistName.search(item) is not None and item not in deleted:
+				#conditional makes sure only the user's who is logged in wishlist's are displayed
+				if emailInFile == API.emailAddr:
+					wishlist_name = filenamePattern.findall(item)[0][1:-1]
+					try:
+						wishlist_name_displayed = wishlist_name.replace("_"," ") #if the name contains an underscore, replace it with a space
+					except:
+						wishlist_name_displayed = wishlist_name #otherwise set the name displayed to the name found
+					#create the name button
+					btn = Button(
+						text = str(wishlist_name_displayed),
+						size_hint = (None, None),
+						size = (Window.size[0]/8,Window.size[1]/24),
+						halign = 'center',
+						color = (0,0,0,1))
+					#ie if kwargs["edit"]==False
+					if not kwargs["edit"]:
+						btn.bind(on_press = partial(self.PlaceWishlistItems, wishlist_name)) #binds the placewishlistItems function to thebuton
+						btn.background_color = rgba_lightblue #sets the background to lightblue
+					#if edit is a kwargument then:
+					else:
+						#set buton press to delete the wishlist, rather than display the wishlist
+						btn.bind(on_press= partial(self.deleteWishlist, wishlist_name))
+						#changes the background_color to red, for visual, that you are deleting if you click.
+						btn.background_color = (1,0,0,1)
+					self.ids.NamesGrid.add_widget(btn)
 		namesPlaced = True
-
-
-
-
-
 
 	def editWishlists(self):
 		''' Makes wishlists delete themselves upon button click '''
@@ -535,33 +582,41 @@ class MyWishlists(Screen):
 		For example, currently when you release the buton, all it does is change the image source back to normal, which could easily be done in kivy, without the need for a function specifically to be called when the buton released, however, if in future I wanted to make it change the picture AND move it AND do something else, I would then have to write a function called when the buton was released. In pre-defining these functions, I'm saving myself time in the case of possible expansion.
 	'''
 	#---- SAVE BUTTON-----
-
-	def pressed_save_button(self):
-		self.ids.SaveButton.source = "../assets/saveicon_down.png" #sets image to the "down" version
-		if not self.checkIfSaved(popup=False): #if the wishlist is not already saved then save it
-			try:
-				self.CreateWishlist() #calls the CreateWishlist function, SAVING THE FILE LOCALLY
-				#Functions().call_save_wishlist()
-				self.ids.updatedInfo.text = "Wishlist Saved!"
-			except:
-				self.ids.updatedInfo.text = "An error occurred while saving your wishlist!"
-			#
-		else:
-			self.ids.updatedInfo.text = "This wishlist is already saved!"
-		#starts the animation
+	def animateUpdatedText(self):
 		anim  = Animation(opacity = 0, duration=0.01) + Animation(color=(1,0,0,0), duration=0.3) #flashes red
 		anim += Animation(opacity = 1, duration=0.1) + Animation(color=(1,0,0,1), duration=1)#flashes red
 		anim += Animation(opacity = 0, duration=0.1) + Animation(color=(1,0,0,0), duration = 0.3)
 		anim.repeat = False #makes it so it doesnt continually flash and hurt someones eyes-- User suggestion
 		anim.start(self.ids.updatedInfo) #starts the animation
+
+	def pressed_save_button(self):
+		self.ids.SaveButton.source = "../assets/saveicon_down.png" #sets image to the "down" version
+		if not self.checkIfSaved(popup=False): #if the wishlist is not already saved then save it
+			try:
+				self.ids.updatedInfo.text = "Saving Wishlist"
+				self.animateUpdatedText()
+				time.sleep(1)
+				self.CreateWishlist() #calls the CreateWishlist function, SAVING THE FILE LOCALLY
+				Functions().call_save_wishlist()
+				self.ids.updatedInfo.text = "Wishlist Saved!"
+			except Exception as e:
+				print(e)
+				traceback.print_exc()
+				self.ids.updatedInfo.text = "An error occurred while saving your wishlist!"
+			#
+		else:
+			self.ids.updatedInfo.text = "This wishlist is already saved!"
+		#starts the animation
+		self.animateUpdatedText()
+
 	def released_save_button(self):
 		self.ids.SaveButton.source = "../assets/saveicon.png" #sets image back to normal
 
 	#--SHARE BUTTON---
 
 	def pressed_share_button(self):
-		self.ids.ShareButton.source = "../assets/shareicon_down.png" #sets image to the 'down' version
 		self.parent.current = "ShareWishlist"
+
 	def released_share_button(self):
 		self.ids.ShareButton.source = "../assets/shareicon.png" #sets image back to normal image
 
@@ -597,13 +652,285 @@ class MyWishlists(Screen):
 
 	#----RELOAD WISHLIST BUTTON -----
 	def pressed_reload_wishlist_button(self):
-		self.ids.NewWishlist.source = "../assets/reloadicon_down.png"
+		self.ids.ReloadButton.source = "../assets/reloadicon_down.png"
 		Functions().call_reload_wishlists() #checks server for any new wishlists
 		self.PlaceWishlistNames(edit=False) #re places the wihslist
+		self.PlaceWishlistItems(currentWishlist)
 
 	def released_reload_wishlist_button(self):
-		self.ids.NewWishlist.source = "../assets/plusbutton.png"
+		self.ids.ReloadButton.source = "../assets/reloadicon.png"
 
+class SharedWishlists(Screen):
+	def on_enter(self):
+		#imports the global editMode
+		self.ids.EditModeText.opacity = 0 #makes the EDIT MODE text dissapear
+		self.ids.ReloadButton.opacity = 1 #makes the reloadbutton appear
+		self.ids.EditWishlists.opacity = 0 #makes the editButton dissapear
+		self.ids.backButton.opacity = 0 #makes the back button dissapear
+		self.ids.ItemsButton.opacity =0 #makes the Items button dissapear
+		self.ids.WishlistNameLabel.text = "" #makes the text an empty string
+
+
+		self.PlaceWishlistUsers() #callPlaceWishlistNames with edit kwarg as false
+		self.ids.ItemsGrid.clear_widgets() #COMMENTED
+
+	def PlaceWishlistItems(self,wishlist_name, *args): #COMMENTED
+		'''Locates, opens and outputs the contents of a wishlist given its name. Places the
+		items on the screen displays the wishlists name and displays the share and save buttons. '''
+
+		#had to copy and paste the function, rather than calling the function already defined in myWishlsits, or it would break and the wishlists would not be displayed properly. Likely to do with an issue with ID referencing from another screen.
+		global currentWishlist #imports the global current wishlist variable
+		global targetUser #imports the global target user variable
+		global targetEmail #imports the global target email variable
+
+		#------------UPDATING SCREEN WITH BUTONS AND NAME----------------
+		'''This block of code places the name of the wishlist as a heading, places the items button for the top of the wishlist, scrolls the wishlist scroll view to the top, and makes the save button and share button visible'''
+		currentWishlist = wishlist_name #sets current wishlist to wishlist_name
+		try:
+			self.ids.WishlistNameLabel.text = str("{" + wishlist_name.replace("_"," ")+"}") #replaces _ with " " if there is an _ in the name (for aesthetics)
+		except:
+			self.ids.WishlistNameLabel.text = str("{" + wishlist_name +  "}") #just places the wishlsitname on screen with the { } as decorations
+
+		#defines the items button with the following parameters:
+		self.ids.ScrollView.scroll_y = 1 #makes scroll view scroll to top
+		self.ids.UserNameLabel.text = targetUser #sets the UserNameLabel to the target user's name
+		self.ids.ItemsButton.opacity = 1 #makes the items button visible
+
+		#-------------PLACING WISHLIST ON SCREEN-----------------
+		'''This block of code places the wishlist items in text inputs INSIDE the scroll view on the screen. '''
+		items = [] #sets items to []
+		pattern = re.compile(r'\/.*-') #regex pattern to find name of string given CSV filename
+		self.ids.ItemsGrid.clear_widgets() #Removes existing wishlist from screen
+		layout = self.ids.ItemsGrid #sets layout to the GridLayout
+		layout.bind(minimum_height=layout.setter('height')) #sets grid to minimum height, allows for scrolling
+		wishlist_path = "Wishlists/"+wishlist_name + "-" +targetEmail+'.csv'  #sets wishlist path given the wishlist name and email adress
+		with open(wishlist_path) as f: #open the file
+			reader = csv.DictReader(f) #opens a reader
+			for row in reader: #for every row in the file
+				items.append(row['items']) #appends the item in the wishlist to the items list
+
+		#This loop goes through the wishlist, and creates a text input for each item. If there is no item, the text input's text value is "", and is still placed on screen
+		for i in range(100):
+			try:
+				text = items[i] #sets text to item in wishlist
+			except:
+				text ='' #if there is no item, sets text to " "
+			#defines the text input widget, with all the following parameters
+			TI = TextInput(
+				text = text,
+				size_hint = (None, None),
+				size = (Window.size[0],Window.size[1]/24),
+				background_color = rgba_darkblue,
+				foreground_color = rgba_white,
+				hint_text_color = rgba_white,
+				disabled = True,
+				disabled_foreground_color = rgba_white
+
+				)
+			self.ids.ItemsGrid.add_widget(TI) #adds text input to the grid
+
+	def PlaceWishlistNames(self, *args, **kwargs): #COMMENTED
+		'''
+
+		PlaceWishlistNames(edit wipe)
+		'''
+		global namesPlaced #imports the namesPlaced variable so we can change it to true once the names are placed
+		global targetUser #imports global targetUser variable
+		global targetEmail #imports global targetEmail variable
+		list_wishlists = glob.glob("Wishlists/*.csv") #gets list of wishlists
+		names = [] #sets names to empty list
+		#sets the regex conditions for a valid Wishlist name
+
+
+
+		filenamePattern = re.compile(r'\/.*-') #regex pattern to find name of wishlist in the filename
+		#self.SetData(args[0].strip())
+		with open("userdata/users.csv") as f:
+			#defines a DictREader for the csv file
+			reader = csv.DictReader(f)
+			#go through each row in the file, if the user is equal to the user passed to the function, then set that user and email to be the target user and email respectfully
+			for row in reader:
+				if row['user'].strip() == args[0]:
+					targetUser = row["user"].strip()
+					targetEmail = row["email"].strip()
+
+		self.ids.NamesGrid.clear_widgets() #clears widgets from NamesGrid
+		self.ids.backButton.opacity = 1 #makes back button visible
+		self.ids.EditWishlists.opacity = 1 #makes EditWishlists buton visible
+
+		layout = self.ids.NamesGrid #sets layout to be self.ids.NamesGrid
+
+		layout.bind(minimum_height=layout.setter('height'))#sets minium height to the layouts height, allows for scrolling
+		#adds each name of the of each of the wishlists  in the list of wishlists.
+
+		#for each wishlist pathname:
+		for item in list_wishlists:
+
+			#emailInFile is the email adress found in the filename of the wishlist currently being looked at
+
+			#target is the email adress that was passed to the function as an argument, ie it is a SPECIFIC user's email, the root user wants to see every wishlist by that user.
+
+			#the loop then checks through ALL wishlists filenames, and IF wishlist was written by the desired user (ie if filename contains targetEmail) then place it on screen.
+
+			#finds the email adress in the filename using regex and string splicing to remove the .csv
+			emailInFile = validEmail.search(item).group(0)[:-4]
+			#if the wishilst was written by user whos button was clicked:
+			if targetEmail == emailInFile:
+				#gets the wishlist name from the filename using regex
+				wishlist_name = filenamePattern.findall(item)[0][1:-1]
+				#replaces the underscores with space, sets the wishlist_name_displayed
+				try:
+					wishlist_name_displayed = wishlist_name.replace("_"," ") #if the name contains an underscore, replace it with a space
+				except:
+					wishlist_name_displayed = wishlist_name #otherwise set the name displayed to the name found
+				#create the name button
+				btn = Button(
+					text = str(wishlist_name_displayed),
+					size_hint = (None, None),
+					size = (Window.size[0]/8,Window.size[1]/24),
+					halign = 'center',
+					color = (0,0,0,1))
+				#ie if kwargs["edit"]==False
+				if not kwargs["edit"]:
+					btn.bind(on_press = partial(self.PlaceWishlistItems, wishlist_name)) #binds the placewishlistItems function to thebuton
+					btn.background_color = rgba_lightblue #sets the background to lightblue
+				#if edit is a kwargument then:
+				else:
+					#set buton press to delete the wishlist, rather than display the wishlist
+					btn.bind(on_press= partial(self.deleteWishlist, wishlist_name))
+					#changes the background_color to red, for visual, that you are deleting if you click.
+					btn.background_color = (1,0,0,1)
+				#adds the button to the namesGrid
+				self.ids.NamesGrid.add_widget(btn)
+		#sets namesplaced to true, for maintainabily
+		namesPlaced = True
+
+	def PlaceWishlistUsers(self, *args, **kwargs):
+		#imports global targetEmail
+		global targetEmail
+		#imports global targetUser
+		global targetUser
+		list_wishlists = glob.glob("Wishlists/*.csv") #gets list of wishlists
+		names = [] #sets names to empty list
+		users = [] #sets users to empty list
+		#sets regex conditions for valid
+
+		filenamePattern = re.compile(r'\/.*-') #regex pattern to find name of wishlist in the filename
+		self.ids.NamesGrid.clear_widgets()
+		layout = self.ids.NamesGrid #sets layout to the names Grid
+
+		layout.bind(minimum_height=layout.setter('height'))#sets minium height to the layouts height, allows for scrolling
+		#adds each name of the of each of the wishlists  in the list of wishlists.
+
+
+		for item in list_wishlists:
+			try:
+				#searches the item
+				sent_from = validEmail.search(item)
+				#identifies the email, the string slicing removes the .csv from the end
+				sent_from = sent_from.group(0)[:-4]
+				sent_from.strip()
+			except:
+				sent_from = ""
+				#TODO chuck exception
+			'''Find the email_address, match it to a user in users.csv, and append the user to the users list'''
+			with open('userdata/users.csv') as f:
+				reader = csv.DictReader(f)
+				for row in reader: #for every row in the file)
+
+					#if the email in the row is the email in the file AND the user of that email is not already in the users list AND the user is not the user logged in, THEN add them to the users list
+					if row["email"]== sent_from and row["user"].strip() not in users and row['email'] != API.emailAddr:
+							global ViewingTargetsEmail
+
+							#strips the new line and indentation
+							users.append(row["user"].strip())
+
+		for user in users:
+			#define the buton with the text to be the users name
+			btn = Button(
+				text = user,
+				size_hint = (None, None),
+				size = (Window.size[0]/8,Window.size[1]/24),
+				halign = 'center',
+				color = (0,0,0,1))
+			#sets button press to call the placeWishlist Names function
+			btn.bind(on_press = partial(self.PlaceWishlistNames, user, edit = False))
+			#sets background color to blue
+			btn.background_color = rgba_lightblue
+			self.ids.NamesGrid.add_widget(btn)
+
+	def editWishlists(self):
+		''' Makes wishlists delete themselves upon button click '''
+		#clears the
+		self.ids.NamesGrid.clear_widgets()
+		self.PlaceWishlistNames(edit=True)
+
+	def deleteWishlist(self, wishlist_name, *args):
+		global wishlist_to_be_deleted
+		wishlist_to_be_deleted = wishlist_name
+		self.parent.current = "deleteWishlist"
+
+
+
+	#---------------------------------------------------------------------------------------------
+	#									Button press functions
+	#---------------------------------------------------------------------------------------------
+	'''
+		It's worth noting that writing individual functiosn for on_press and on_release of each buton seems messy, it actually allows for increased maintainabily and possibility of expansion.
+
+		For example, currently when you release the buton, all it does is change the image source back to normal, which could easily be done in kivy, without the need for a function specifically to be called when the buton released, however, if in future I wanted to make it change the picture AND move it AND do something else, I would then have to write a function called when the buton was released. In pre-defining these functions, I'm saving myself time in the case of possible expansion.
+	'''
+	#---EDIT WISHLIST BUTTON-------
+
+	def pressed_edit_button(self):
+		#sets image to the edit icon down image
+		self.ids.EditWishlists.source = "../assets/editicon_down.png"
+		global editMode
+		#makes use of a binary switch to determine if edit mode is on or not. If edit mode is "On" and thebuton is clicked, then edit mode is turned off, and set to False. Vice versa
+		if editMode:
+			self.ids.EditModeText.opacity = 0 #makes the EDIT MODE text visible
+			self.ids.ReloadButton.opacity = 1 #makes the reload Button visible
+			self.PlaceWishlistNames(edit=False) #calls the PlaceWishlistNames with edit kwarg being False
+			editMode = False #sets editMode switch to False
+
+		else:
+			self.ids.EditModeText.opacity = 1 #makes the EDIT MODE text visible
+			self.ids.ReloadButton.opacity = 0 #makes the reloadButton invisible
+			self.editWishlists() #calls the editWishlists function
+			editMode = True #sets editMode switch to true
+
+	def released_edit_button(self):
+		self.ids.EditWishlists.source = "../assets/editicon.png"
+
+	#----RELOAD WISHLIST BUTTON -----
+	def pressed_reload_wishlist_button(self):
+
+		self.ids.ReloadButton.source = "../assets/reloadicon_down.png"
+
+		Functions().call_reload_shared_wishlists() #checks server for any new wishlists
+
+		self.PlaceWishlistNames(edit=False) #re places the wihslist
+
+
+		#if user presses reload_reload_wishlist before they have clicked on a wishlist, then it will be unable to place the wishlist, meainng that it will crash. Try/except catches the exception
+		try:
+			self.PlaceWishlistItems(currentWishlist)
+		except:
+			pass
+
+	def released_reload_wishlist_button(self):
+		self.ids.ReloadButton.source = "../assets/reloadicon.png"
+
+	#----BACK  BUTTON -----
+	def pressed_back_button(self):
+		self.ids.backButton.source = "../assets/rightarrow_down.png"
+		self.PlaceWishlistUsers()
+		self.ids.EditWishlists.opacity = 0
+		self.ids.backButton.opacity = 0
+		self.ids.UserNameLabel.text = ""
+
+	def released_back_button(self):
+		self.ids.backButton.source = "../assets/rightarrow.png"
 
 class DeleteScreen(Screen):
 	Message = "Are you sure you want\n to delete this wishlist?" #cant import the actual name for some reason :/
@@ -613,9 +940,20 @@ class DeleteScreen(Screen):
 			wishlist_name = wishlist_name.replace(" ","_") #if the name contains an underscore, replace it with a space
 		except:
 			pass
-		filepath ="Wishlists/"+wishlist_name + "-" +API.emailAddr+'.csv'
+		filepath ="Wishlists/"+wishlist_name + "-" +ViewingTargetsEmail+'.csv'
+		deleted.append(filepath)
 		os.remove(filepath) #deletes the wishlist
 		self.parent.current = "MyWishlists"
+
+class NewWishlistScreen(Screen):
+	def CreateWishlist(self, wishlist_name):
+		if len(wishlist_name) < 10: #restriction on wishlist_name length , has to be less than 10 characters
+			MyWishlists().CreateWishlist(wishlist_name)
+			MyWishlists().PlaceWishlistNames(edit=False)
+			self.parent.current = 'MyWishlists' #changes screen to MyWishlists
+			self.ids.WishlistNameInput.text = "" #resets the text input to "" so it looks empty when they create a new wishlist
+		else:
+			self.ids.MessageLabel.text = "Please make sure your wishlist name is < 10 characters long!"
 
 class ShareWishlistScreen(Screen):
 	def share_wishlist(self, to_addr):
@@ -624,6 +962,7 @@ class ShareWishlistScreen(Screen):
 
 class TermsAndConditions(Screen):
 	pass
+
 class ScreenManager(ScreenManager):
 	pass
 
