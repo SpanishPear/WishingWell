@@ -22,7 +22,7 @@ content = []
 #     print(content)
 appPassword = "***REMOVED***"
 #emailPassword = "***REMOVED***"
-emailPassword = "bdyijkbcipmcbfyv"
+emailPassword = "REDACTED" #change this to your own email password for testing
 def reload_shared_wishlists(): #DONE
     '''
     Checks users email for any wishlists that have been share with them and downloads them.
