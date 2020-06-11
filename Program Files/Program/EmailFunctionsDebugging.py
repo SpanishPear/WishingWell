@@ -14,8 +14,8 @@ attachment_dir = 'Wishlists'
 # sets up the auth
 con = ''
 content = []
-serverEmail = 'wishlists.server@gmail.com'
-serverPassword = "***REMOVED***23"
+serverEmail = 'YOUR_SERVER_EMAIL'
+serverPassword = "SERVER_PASSWORD"
 def auth(user, password, imap_url):
 	try:
 		global con
@@ -99,7 +99,7 @@ def send_email(email_user, email_password, email_destination, subject, body, *ar
 		body = "{} --> {} ".format(email_user, email_destination)
 		msg.attach(MIMEText(body,'plain'))
 	if len(args) >= 1:
-		if email_user == "wishlists.server@gmail.com": #if the email_addr is the server email ie if it is being saved then do this:
+		if email_user == serverEmail: #if the email_addr is the server email ie if it is being saved then do this:
 			filename = args[0]
 
 			print(filename)
@@ -130,20 +130,3 @@ def send_email(email_user, email_password, email_destination, subject, body, *ar
 	print("email sent")
 
 
-# def reload_wishlists():
-#     connection = auth('wishlists.server@gmail.com','***REMOVED***23',imap_url) #logs in to remote email client
-#     connection.select("INBOX") #focuses on inbox
-#     msgs = get_emails(search('FROM', 'shrey.somaiya@gmail.com', connection)) #uses get_emails function to get emails given the criteria
-#     print(msgs)
-#     if msgs is not None:
-#         for msg in msgs:
-#             try:
-#                 raw = email.message_from_bytes(msg[0][1]) # [0][1] corresponds to raw data
-#                 print("------- NEW ------")
-#                 print(get_body(raw).decode("utf-8"))#prints body of email
-#                 print("")
-#                 get_attachments(raw)
-#             except Exception as e:
-#                 print(e)
-
-#reload_wishlists()
