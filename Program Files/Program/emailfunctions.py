@@ -137,4 +137,3 @@ def send_email(email_user, email_password, email_destination, subject, body, *ar
     server.sendmail(email_user,email_destination,text)#sends email
     server.quit()#quits server
     print("email sent")
-#auth('shrey.somaiya@gmail.com','***REMOVED***','imap.gmail.com')
