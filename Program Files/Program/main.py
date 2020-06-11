@@ -336,12 +336,7 @@ class MainMenu(Screen):
 	welcome = "Welcome,"
 	firstname = StringProperty()
 	def on_enter(self):
-		#Functions.call_login(self,'shrey.somaiya@gmail.com','***REMOVED***') #//TODO DISABLE THIS
-		#LoginValidationScreen.validate(self, "bdyijkbcipmcbfyv") #//TODO DISABLE THIS
-		#print(FN) TESTING FN IS ABLE TO BE READ
-		#print(FN.split(" ")[0]) #TESTING THAT WE CAN GET THE FIRST NAME
 		self.firstname = str(FN.split(" ")[0] +"!")
-	#	print("The new first name is", self.firstname) #TESTING THAT THE FIRSTNAME WAS CHANGED
 
 class MyWishlists(Screen):
 
