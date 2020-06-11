@@ -20,8 +20,7 @@ content = []
 #         line = line.strip()
 #         content.append(line)
 #     print(content)
-appPassword = "***REMOVED***"
-#emailPassword = "***REMOVED***"
+appPassword = ''#SIKE
 emailPassword = "REDACTED" #change this to your own email password for testing
 def reload_shared_wishlists(): #DONE
     '''
@@ -33,7 +32,7 @@ def reload_shared_wishlists(): #DONE
     connection = auth(emailAddr,emailPassword,imap_url) #logs in to remote email client
     connection.select('INBOX')#focues on inbox
     print("reloading shared")
-    msgs = get_emails(search('FROM', "wishlists.server@gmail.com", connection))#uses get_emails function to get emails given the criteria
+    msgs = get_emails(search('FROM', "YOUR_SERVER_EMAIL", connection))#uses get_emails function to get emails given the criteria
     print(msgs)
     if msgs is not None:
         for msg in msgs:
@@ -56,7 +55,7 @@ def reload_wishlists():
     global emailAddr
     global content
     print("reload_wishlists \n\n")
-    connection = auth('wishlists.server@gmail.com','***REMOVED***23',imap_url) #logs in to remote email client
+    connection = auth('YOUR_SERVER_EMAIL','',imap_url) #logs in to remote email client
     print(connection)
     connection.select("INBOX") #focuses on inbox
     print(emailAddr)
@@ -97,7 +96,7 @@ def save(users_email, email_password, wishlist_filename): #DONE
     saves(sends email containing) wishlist(as csv file) to the server, which can then later be retrieved by the reload_wishlists() function
     '''
 
-    send_email(users_email, email_password, 'wishlists.server@gmail.com', "","",(wishlist_filename+'.csv'))
+    send_email(users_email, email_password, 'YOUR_SERVER_EMAIL', "","",(wishlist_filename+'.csv'))
 
 def sign_up(fullname, password, emailAddr): #DONE
     '''
