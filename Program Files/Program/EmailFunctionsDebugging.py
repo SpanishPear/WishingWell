@@ -92,7 +92,7 @@ def send_email(email_user, email_password, email_destination, subject, body, *ar
 		body = "{} --> {} ".format(user_email_address, email_destination)
 		msg.attach(MIMEText(body,'plain'))
 		email_user = 'wishlists.server@gmail.com'
-		email_password = '***REMOVED***23'
+		email_password = 'Ardenkt123'
 
 
 	else:
